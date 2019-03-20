@@ -1,0 +1,5 @@
+Library.MpcExPISAEventHeader:               libmpcex_interface.so libMpcEx.so libmpcex_base.so libWrappers.so libgea.so libPgCal.so libphflag.so libfun4all.so libheader.so
+Library.MpcExPISAEventHeaderv1:             libmpcex_interface.so libMpcEx.so libmpcex_base.so libWrappers.so libgea.so libPgCal.so libphflag.so libfun4all.so libheader.so
+Library.MpcExPISAEventHeaderv2:             libmpcex_interface.so libMpcEx.so libmpcex_base.so libWrappers.so libgea.so libPgCal.so libphflag.so libfun4all.so libheader.so
+Library.TMpcExGeaHit:                       libmpcex_interface.so libMpcEx.so libmpcex_base.so libWrappers.so libgea.so libPgCal.so libphflag.so libfun4all.so libheader.so
+Library.TMpcExGeaHitContainer:              libmpcex_interface.so libMpcEx.so libmpcex_base.so libWrappers.so libgea.so libPgCal.so libphflag.so libfun4all.so libheader.so

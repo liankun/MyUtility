@@ -1,0 +1,17 @@
+Library.ExAcpt:                             libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.ExEvent:                            libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.ExEventHeader:                      libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.ExEventV1:                          libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.ExGeomToKey:                        libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.ExHit:                              libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.ExShower:                           libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.ExShowerV1:                         libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.ExSimEvent:                         libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.ExSimEventV1:                       libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.FkinParticle:                       libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.STFinder:                           libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.STFinderV2:                         libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.TrueParticle:                       libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.TruePi0:                            libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.mMpcExMyApplyCalibrations:          libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so
+Library.mMpcExMyLoadCalibrations:           libMyUtility.so libCore.so libSpectrum.so libuspin.so libmpcex_base.so libmpcex_interface.so libmpcex_modules.so libmpcex_utils.so libMpcExReco.so

@@ -1,0 +1,24 @@
+#ignore the following directory
+install/
+build/
+offline_src/
+backup/
+TestCases/
+#ignore some macros files
+*.root
+macros/*.txt
+
+#ignore the files
+Makefile.in
+aclocal.m4
+autogen.sh
+autom4te.cache/
+config.guess
+config.sub
+configure
+depcomp
+fit_match_landau_all_scale_smear.txt
+install-sh
+ltmain.sh
+minipad_mip_correction.txt
+missing
