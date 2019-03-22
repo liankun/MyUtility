@@ -4,6 +4,7 @@ build/
 offline_src/
 backup/
 TestCases/
+Data_File
 #ignore some macros files
 *.root
 macros/*.txt
