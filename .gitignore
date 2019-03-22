@@ -12,7 +12,6 @@ macros/*.txt
 #ignore the files
 Makefile.in
 aclocal.m4
-autogen.sh
 autom4te.cache/
 config.guess
 config.sub
