@@ -13,8 +13,8 @@ noinst_HEADERS = \
 
 dist_pkgdata_DATA = \
   minipad_mip_correction.txt \
-  Data_File/ExAcpt_data_file_mpc.txt \
-  Data_File/ExAcpt_data_file_mpcex.txt
+  minipads_scale_smear_db.txt \
+  neighbor_minipads_can_calibrate_low_gain.txt
 
 AM_LDFLAGS = \
   -L$(libdir) \
