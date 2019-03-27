@@ -48,21 +48,20 @@ mMpcExMyDigitizeHits::mMpcExMyDigitizeHits() : SubsysReco("MMPCEXMYDIGITIZEHITS"
 
   //set _e_smear value
   int key=0;
-  float tmp_value[7];
-  std::ifstream in_txt("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/Data_File/fit_match_landau_all_scale_smear_1sigma_start_based_on_old_cor_scale_up_1_1.txt");
+  float tmp_value[2];
+  std::ifstream in_txt("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/install/share/MyUtility/minipads_scale_smear_include_low_gain_db.txt");
   if(in_txt.is_open()){
-    while(in_txt>>key>>tmp_value[0]>>tmp_value[1]>>tmp_value[2]
-                     >>tmp_value[3]>>tmp_value[4]>>tmp_value[5]
-		     >>tmp_value[6]
+    while(in_txt>>key>>tmp_value[0]>>tmp_value[1]
 	 ){ 
-      if(tmp_value[3]>=0.1) _e_smear[key] = tmp_value[5];
+      _e_smear[key] = tmp_value[1];
     }
   }
   else{ 
     std::cout<<"open smear file failed !"<<std::endl;
   }
-}
 
+
+}
 
 mMpcExMyDigitizeHits::~mMpcExMyDigitizeHits(){
   delete _dice;

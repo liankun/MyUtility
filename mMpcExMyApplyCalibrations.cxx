@@ -132,30 +132,37 @@ mMpcExMyApplyCalibrations::mMpcExMyApplyCalibrations() : SubsysReco("MMPCEXAPPLY
 
   for(int i=0;i<49152;i++){
     _e_fit_cor[i] = -9999;
+    _good_low_gain_neighbor[i] = -9999;
   }
-  std::ifstream in_txt("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/Data_File/fit_match_landau_all_scale_smear_1sigma_start_based_on_old_cor_scale_up_1_1.txt");
+  std::ifstream in_txt("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/install/share/MyUtility/minipads_scale_smear_include_low_gain_db.txt");
   if(in_txt.is_open()){
     int key;
-    float tmp_value[7];
-    while(in_txt>>key>>tmp_value[0]>>tmp_value[1]>>tmp_value[2]
-                     >>tmp_value[3]>>tmp_value[4]>>tmp_value[5]
-                     >>tmp_value[6]
+    float tmp_value[2];
+    while(in_txt>>key>>tmp_value[0]>>tmp_value[1]
 	 ){
-      if(tmp_value[3]<=1.4 && tmp_value[3]>=0.1){
-        _e_fit_cor[key] = tmp_value[3];
+        
+      _e_fit_cor[key] = tmp_value[0];
       
-      }
       std::cout<<key<<"  "
                     <<tmp_value[0]<<"  "
                     <<tmp_value[1]<<"  "
-                    <<tmp_value[2]<<"  "
-                    <<tmp_value[3]<<"  "
-                    <<tmp_value[4]<<"  "
-                    <<tmp_value[5]<<"  "
-                    <<tmp_value[6]<<"  "
                     <<std::endl;
     }
-  }  
+  }
+  else{ 
+    std::cout<<"Open minipads_scale_smear_db.txt failed !!!"<<std::endl;
+  }
+  in_txt.close();
+
+  std::ifstream in_txt1("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/install/share/MyUtility/neighbor_minipads_can_calibrate_low_gain.txt");
+  if(in_txt1.is_open()){ 
+    int key1=0;
+    int key2=0;
+    while(in_txt1>>key1>>key2){ 
+      _good_low_gain_neighbor[key1]=key2;
+      std::cout<<key1<<"  "<<key2<<std::endl;
+    }
+  }
 }
 
 mMpcExMyApplyCalibrations::~mMpcExMyApplyCalibrations(){
@@ -657,7 +664,7 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
 	    else{
 	      MIP_sensor = MpcExConstants::FIXED_MIP_L27;
 	      if((hit->layer()==0) || (hit->layer()==1)) MIP_sensor = MpcExConstants::FIXED_MIP_L01;
-	      HL_ratio = MpcExConstants::FIXED_HL_RATIO; 
+	      HL_ratio = MpcExConstants::FIXED_HL_RATIO;
 	    }
 
 	    // For histogramming purposes, separate out application of sensor-by-sensor and minipad-by-minipad corrections. 
@@ -700,6 +707,20 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
 	      if( (!disable_MPV_layer_adjust) && (calib->get_mip_layer_mpv()>0.0) ) 
 		MPV_layer_adjust = calib->get_mip_layer_mpv(); 
 		    
+	    }
+	    else{ 
+	    //make change here , to make sure for the channels whose high gain is bad and 
+	    //low gain is good, they can't go to simulation. except for channels which can
+	    //use its neighbor calibration
+	      if(calib->get_minipad_mip_correction()<=0 && _good_low_gain_neighbor[key]<0){ 
+        	if(!eliminateBad)
+		  hits->addHit(hit);
+		else
+		  delete hit; 
+
+		++iter; 
+		continue; 
+	      }
 	    }
 
 	    if(fillHistos && _makeHisto){
