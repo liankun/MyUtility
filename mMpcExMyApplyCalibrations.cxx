@@ -712,7 +712,9 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
 	    //make change here , to make sure for the channels whose high gain is bad and 
 	    //low gain is good, they can't go to simulation. except for channels which can
 	    //use its neighbor calibration
-	      if(calib->get_minipad_mip_correction()<=0 && _good_low_gain_neighbor[key]<0){ 
+	      if(calib->get_minipad_mip_correction()<=0 && _good_low_gain_neighbor[key]<0 &&
+	        calibMode != mMpcExMyApplyCalibrations::COMPLETE_FIXED_MC_PERFECT
+		){ 
         	if(!eliminateBad)
 		  hits->addHit(hit);
 		else
