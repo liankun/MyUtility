@@ -49,7 +49,7 @@ mMpcExMyDigitizeHits::mMpcExMyDigitizeHits() : SubsysReco("MMPCEXMYDIGITIZEHITS"
   //set _e_smear value
   int key=0;
   float tmp_value[2];
-  std::ifstream in_txt("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/install/share/MyUtility/minipads_scale_smear_include_low_gain_db.txt");
+  std::ifstream in_txt("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/install/share/MyUtility/minipads_scale_smear_include_low_gain_db_v4.txt");
   if(in_txt.is_open()){
     while(in_txt>>key>>tmp_value[0]>>tmp_value[1]
 	 ){ 

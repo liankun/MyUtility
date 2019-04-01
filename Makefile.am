@@ -15,7 +15,10 @@ dist_pkgdata_DATA = \
   minipad_mip_correction.txt \
   minipads_scale_smear_db.txt \
   neighbor_minipads_can_calibrate_low_gain.txt \
-  minipads_scale_smear_include_low_gain_db.txt
+  minipads_scale_smear_include_low_gain_db.txt \
+  minipads_scale_smear_include_low_gain_db_v2.txt \
+  minipads_scale_smear_include_low_gain_db_v3.txt \
+  minipads_scale_smear_include_low_gain_db_v4.txt
 
 AM_LDFLAGS = \
   -L$(libdir) \
