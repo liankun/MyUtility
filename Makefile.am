@@ -41,7 +41,8 @@ include_HEADERS = \
   mMpcExMyApplyCalibrations.h \
   ExAcpt.h \
   mMpcExMyEmbed.h \
-  mMpcExMyDigitizeHits.h
+  mMpcExMyDigitizeHits.h \
+  ExSimEventV2.h
  
 libMyUtility_la_SOURCES = \
   ExEvent.cxx \
@@ -59,7 +60,8 @@ libMyUtility_la_SOURCES = \
   mMpcExMyApplyCalibrations.cxx \
   ExAcpt.cxx \
   mMpcExMyEmbed.cxx \
-  mMpcExMyDigitizeHits.cxx
+  mMpcExMyDigitizeHits.cxx \
+  ExSimEventV2.cxx
 
 libMyUtility_la_LIBADD = \
   -L$(libdir) \
@@ -94,6 +96,7 @@ MyUtility_Dict.C: \
   mMpcExMyEmbed.h \
   ExAcpt.h \
   mMpcExMyDigitizeHits.h \
+  ExSimEventV2.h \
   MyUtilityLinkDef.h 
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) $^
 
