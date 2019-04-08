@@ -24,6 +24,7 @@
 #pragma link C++ class ExAcpt;
 #pragma link C++ class mMpcExMyDigitizeHits;
 #pragma link C++ class ExSimEventV2;
+#pragma link C++ class ExSimEventV3;
 #pragma link C++ class ExHitList;
 
 #endif /* __CINT__ */
