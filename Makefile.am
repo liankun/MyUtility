@@ -63,9 +63,9 @@ libMyUtility_la_SOURCES = \
   ExAcpt.cxx \
   mMpcExMyEmbed.cxx \
   mMpcExMyDigitizeHits.cxx \
+  ExHitList.cxx \
   ExSimEventV2.cxx \
-  ExSimEventV3.cxx \
-  ExHitList.cxx
+  ExSimEventV3.cxx
 
 libMyUtility_la_LIBADD = \
   -L$(libdir) \

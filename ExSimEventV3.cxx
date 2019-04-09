@@ -14,6 +14,6 @@ ExSimEventV3::~ExSimEventV3(){
 }
 
 void ExSimEventV3::Reset(){
-  ExSimEventV3::Reset();
+  ExSimEventV2::Reset();
   ExHitList::Reset();
 }

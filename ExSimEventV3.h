@@ -3,6 +3,7 @@
 
 #include "ExSimEventV2.h"
 #include "ExHitList.h"
+#include "ExPrimParticle.h"
 
 class ExSimEventV3: public ExSimEventV2,public ExHitList
 {
