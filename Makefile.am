@@ -44,6 +44,7 @@ include_HEADERS = \
   mMpcExMyDigitizeHits.h \
   ExSimEventV2.h \
   ExSimEventV3.h \
+  mMpcExShowerV2.h \
   ExHitList.h
  
 libMyUtility_la_SOURCES = \
@@ -65,7 +66,8 @@ libMyUtility_la_SOURCES = \
   mMpcExMyDigitizeHits.cxx \
   ExHitList.cxx \
   ExSimEventV2.cxx \
-  ExSimEventV3.cxx
+  ExSimEventV3.cxx \
+  mMpcExShowerV2.C
 
 libMyUtility_la_LIBADD = \
   -L$(libdir) \
@@ -103,6 +105,7 @@ MyUtility_Dict.C: \
   ExSimEventV2.h \
   ExHitList.h \
   ExSimEventV3.h \
+  mMpcExShowerV2.h \
   MyUtilityLinkDef.h 
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) $^
 
