@@ -68,16 +68,15 @@ mMpcExMyEmbed::mMpcExMyEmbed()
   }
 
 
-  ifstream in_txt4("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/Data_File/pad_scale_factor_new_include_mpv.txt");   
+  ifstream in_txt4("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/install/share/MyUtility/minipads_scale_smear_include_low_gain_db_v4.txt");   
   if(in_txt4.is_open()){
     int key;
     double scale;
-    double sigma;
-    double mpv;
-    while(in_txt4>>key>>scale>>sigma>>mpv){
+    double smear;
+    while(in_txt4>>key>>scale>>smear){
       MINIPAD_CORRECTION[key] = scale;
-      MINIPAD_SIGMA[key] = sigma;
-      MINIPAD_MPV[key] = mpv;
+//      MINIPAD_SIGMA[key] = sigma;
+//      MINIPAD_MPV[key] = mpv;
     }
   }
   else std::cout<<"open pad_scale_factor_new_include_mpv.txt failed !"<<std::endl;
@@ -237,11 +236,13 @@ int mMpcExMyEmbed::EmbedMpcEx()
 
     double mip_sensor = Calib->get_mip_in_sensor();
     double mip_corr = Calib->get_minipad_mip_correction();
-    double mip = mip_sensor*mip_corr;
+
+    double mip = mip_sensor*mip_corr/Calib->get_mip_correction();
+
     int layer = mpcexmap->get_layer(key);
     
     if(fabs(MINIPAD_CORRECTION[key])>0.001){
-      if(MINIPAD_CORRECTION[key]>0.001) mip /= MINIPAD_CORRECTION[key];
+      mip /= MINIPAD_CORRECTION[key];
     }
 
     if (mip <= 0 && (calibMode!=mMpcExApplyCalibrations::COMPLETE_FIXED_MC_PERFECT)&&(calibMode!=mMpcExApplyCalibrations::COMPLETE_FIXED_MC)&&(calibMode!=mMpcExApplyCalibrations::COMPLETE_FIXED_REALPED)) {
