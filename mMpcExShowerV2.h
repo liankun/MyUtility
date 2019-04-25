@@ -63,7 +63,8 @@ class mMpcExShowerV2: public SubsysReco
  private:
 
   void set_interface_ptrs(PHCompositeNode* top_node);
-  bool FindShowers();
+  bool FindShowers(PHCompositeNode* top_node); 
+  bool FindShowersV2(PHCompositeNode* top_node); 
   void ClusterDeadAreas(); 
   void SingleTrackReco(); 
   void MergeShowers(TMpcExShower *main, TMpcExShower *splinter);

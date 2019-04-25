@@ -63,6 +63,60 @@ public:
   }
 };
 
+struct UnionElement{
+  int prev;
+  int index;
+  int num;
+
+  void init(int i){
+    prev = i;
+    index = i;
+    num = 1;
+  }
+};
+
+
+double ex_size = 20;
+double ex_z = 203.982;
+double box_size = 0.2;
+UnionElement ele_array[49152];
+const int nbox = (int(ex_size/box_size)+1)*2;
+
+
+int get_root(int index){
+  int root = index;
+  while(root!=ele_array[root].prev) root=ele_array[root].prev;
+  return root;
+
+}
+
+void merge_UnionElement(int index1,int index2){
+  if(index1<0 || index1>=49152){
+    cout<<"bad index1 "<<index1<<endl;
+    return;
+  }
+
+  if(index2<0 || index2>=49152){
+    cout<<"bad index2 "<<index2<<endl;
+    return;
+  }
+
+  int root1 = get_root(index1);
+  int root2 = get_root(index2);
+
+  if(ele_array[root1].num>ele_array[root2].num){
+    ele_array[root2].prev = root1;
+    ele_array[root1].num += ele_array[root2].num;
+  
+  }
+  else{
+    ele_array[root1].prev = root2;
+    ele_array[root2].num += ele_array[root1].num;
+  }
+}
+
+
+
 //_______________________________________________________
 mMpcExShowerV2::mMpcExShowerV2( const char* name ) : 
   SubsysReco( name )
@@ -187,15 +241,18 @@ int mMpcExShowerV2::process_event(PHCompositeNode* top_node)
   }
   
   _shower_map->Reset(); 
-
-  FindShowers(); 
+  
+  FindShowersV2(top_node);
+  
+//  std::cout<<"Number of hits: "<<_hit_map->size()<<std::endl;
+//  std::cout<<"Number showers: "<<_shower_map->size()<<std::endl;
   if(DoSTReco)
     SingleTrackReco(); 
 
   return EVENT_OK;
 }
 
-bool  mMpcExShowerV2::FindShowers()
+bool  mMpcExShowerV2::FindShowers(PHCompositeNode* top_node)
 {
        
   //static int numEvt = 0;  
@@ -203,20 +260,6 @@ bool  mMpcExShowerV2::FindShowers()
   //				 << " (" << _hit_map->sHits() << "," << _hit_map->nHits() << "}" << std::endl; 
   //numEvt++; 
 
-  //code I added for record all saved seeded_hsx
-  //0 for south arm and 1 for north arm
-  vector<double> seed_hsx_list[2];
-  vector<double> seed_hsy_list[2];
-  seed_hsx_list[0].clear();
-  seed_hsx_list[1].clear();
-
-  seed_hsy_list[0].clear();
-  seed_hsy_list[1].clear();
-
-  //record the smallest distance for the minipads
-  double dist_to_shower[49152] = {0};
-  fill_n(dist_to_shower,49152,9999); 
-  
   vector<unsigned int> used_list; 
   vector<unsigned int> current_used_list; 
   
@@ -346,24 +389,7 @@ bool  mMpcExShowerV2::FindShowers()
 
 	// Calculate distance in hough space
 	float dist = sqrt( (seed_shx - hx)*(seed_shx - hx) + 
-			   (seed_shy - hy)*(seed_shy - hy)); 
-        
-
-	//code I added
-	//find the closest shower to this minipad
-	int tmp_key = hit_ptr2->key();
-	
-        //only calculate the distance of new shower
-	if(num_iter==0 && seed_hsx_list[seed_arm].size()>0){ 
-	  int i_last = seed_hsx_list[seed_arm].size()-1;
-          double t_dhsx = hx - seed_hsx_list[seed_arm][i_last];
-	  double t_dhsy = hy - seed_hsy_list[seed_arm][i_last];
-	  double t_dist = sqrt(t_dhsx*t_dhsx+t_dhsy*t_dhsy);
-	  if(dist_to_shower[tmp_key]>t_dist) dist_to_shower[tmp_key]= t_dist;
-	}
-
-	if(dist_to_shower[tmp_key]<dist) continue;
-
+			   (seed_shy - hy)*(seed_shy - hy));  
 
 	// Check if hit is in the cone
 	if(dist<(ExpansionFactor*shower_radius[seed_arm][layer])){ 
@@ -463,11 +489,6 @@ bool  mMpcExShowerV2::FindShowers()
     shower_v1->set_vertex(_vertex); 
     shower_v1->set_ExpansionFactor(ExpansionFactor); 
 
-    //code I added
-    seed_hsx_list[seed_arm].push_back(seed_shx);
-    seed_hsy_list[seed_arm].push_back(seed_shy);
-
-
     for(unsigned int i=0; i<current_used_list.size(); i++){
       //Associate these hits to the shower      
       shower_v1->addHit(current_used_list[i]); 
@@ -483,7 +504,8 @@ bool  mMpcExShowerV2::FindShowers()
 
   for(unsigned int shwrNum0=0; shwrNum0<_shower_map->size() ; shwrNum0++) {
     TMpcExShower *shower_v1 = _shower_map->getShower(shwrNum0); 
-    CalculateShowerProperties(shower_v1); 
+    CalculateShowerProperties(shower_v1);
+    shower_v1->BuildContributorListMC(top_node); 
   }
 
   // Loop over showers to set the closestMPC flag 
@@ -510,6 +532,164 @@ bool  mMpcExShowerV2::FindShowers()
 
   return True;
 }
+
+bool mMpcExShowerV2::FindShowersV2(PHCompositeNode* top_node){ 
+  int box_2d_array[2][nbox][nbox];
+  memset(box_2d_array,-1,2*nbox*nbox*sizeof(int));
+
+  double hs_ex_size[2] = {ex_size/fabs(-ex_z-_vertex),ex_size/fabs(ex_z-_vertex)};
+  double hs_box_size[2] = {box_size/fabs(-ex_z-_vertex),box_size/fabs(ex_z-_vertex)};
+
+  unsigned int nhits = _hit_map->size();
+  if(nhits==0) return true;
+  
+//  std::cout<<"box process"<<std::endl;
+  for(unsigned int ihit=0;ihit<nhits;ihit++){ 
+    TMpcExHit* hit = _hit_map->getHit(ihit);
+    int arm = hit->arm();
+     //init the union element
+    ele_array[ihit].init(ihit);
+    if(!hit->isGoodCombinedHit()) continue;
+    if(DisableNorth && arm==1) continue;
+    if(DisableSouth && arm==0) continue;
+
+    double x = hit->x();
+    double y = hit->y();
+    double z = hit->z();
+    double x_w = hit->minipad_x_width()/2.;
+    double y_w = hit->minipad_y_width()/2.;
+    double hsx = x/(z-_vertex);
+    double hsy = y/(z-_vertex);
+        
+	
+    //mark the aera of minipad to be true
+    double hsx_w = x_w/fabs(z-_vertex);
+    double hsy_w = y_w/fabs(z-_vertex);
+    int lim_ix0 = (hsx-hsx_w+hs_ex_size[arm])/hs_box_size[arm]; 
+    int lim_ix1 = (hsx+hsx_w+hs_ex_size[arm])/hs_box_size[arm];
+    int lim_iy0 = (hsy-hsy_w+hs_ex_size[arm])/hs_box_size[arm]; 
+    int lim_iy1 = (hsy+hsy_w+hs_ex_size[arm])/hs_box_size[arm];
+        
+	//check the surrondings
+    for(int s=lim_ix0-1;s<=lim_ix1+1;s++){ 
+      if(s<0 || s>nbox-1) continue;
+      for(int t=lim_iy0-1;t<=lim_iy1+1;t++){ 
+	if(t<0 || t>nbox-1) continue;
+	//box is occupied
+	if(box_2d_array[arm][s][t]>=0){
+	  int root1 = get_root(box_2d_array[arm][s][t]);
+	  int root2 = get_root(ihit);
+	  //if the root are the same, already merged
+	  //only consider the root are different
+	  if(root1 != root2){ 
+            merge_UnionElement(root1,root2); 
+	  }
+	}
+	else{
+          //not occupied
+	  //lim_ix0-1 or lim_ix1+1, is neighbor box
+	  //not belonging to this pad
+	  if(s>=lim_ix0 && s<=lim_ix1 && t>=lim_iy0 && t<=lim_iy1){
+            box_2d_array[arm][s][t] = ihit;
+	  }
+	}
+      }//t
+    }//s
+  }//ihit
+
+
+  //step two merge the box
+  //will use dfs search
+  //index is a map from ihit to shower
+  TMpcExShower* shower_array[nhits];
+  memset(shower_array,0,nhits*sizeof(TMpcExShower*));
+
+  double shower_hsx[nhits];
+  memset(shower_hsx,0,nhits*sizeof(double));
+  double shower_hsy[nhits];
+  memset(shower_hsy,0,nhits*sizeof(double));
+  double shower_norm_x[nhits];
+  memset(shower_norm_x,0,nhits*sizeof(double));
+  double shower_norm_y[nhits];
+  memset(shower_norm_y,0,nhits*sizeof(double));
+  vector<int> root_list;
+  
+//  std::cout<<"shower process"<<endl;
+  for(unsigned int ihit=0;ihit<nhits;ihit++){
+    int root = get_root(ihit);
+    //ignore only one hit shower
+    if(ele_array[root].num<=1) continue;
+    
+    TMpcExHit* hit = _hit_map->getHit(ihit);
+    int arm = hit->arm();
+    
+    //get shower hsx and hsy
+    double q_hit = hit->combined(); 
+    double hx = hit->x()/(hit->z()-_vertex);
+    double hy = hit->y()/(hit->z()-_vertex);
+
+    double sigma = (hit->minipad_x_width()/sqrt(12.0))/fabs(hit->z()-_vertex); 
+    double weight_X = q_hit*(1.0/(sigma*sigma));
+    sigma = (hit->minipad_y_width()/sqrt(12.0))/fabs(hit->z()-_vertex); 
+    double weight_Y = q_hit*(1.0/(sigma*sigma));
+
+
+    //the root can be larger than ihit
+    if(!shower_array[root]){ 
+      shower_array[root] = new TMpcExShower(arm);
+      _shower_map->addShower(shower_array[root]);
+      root_list.push_back(root);
+    }
+    shower_array[root]->addHit(hit->key());
+    shower_hsx[root] += hx*weight_X; 
+    shower_hsy[root] += hy*weight_Y;  
+    shower_norm_x[root] += weight_X; 
+    shower_norm_y[root] += weight_Y; 
+  }
+  
+  for(unsigned int irt=0;irt<root_list.size();irt++){ 
+    int ishower = root_list[irt];
+    shower_hsx[ishower] = shower_hsx[ishower]/shower_norm_x[ishower];
+    shower_hsy[ishower] = shower_hsy[ishower]/shower_norm_y[ishower];
+    shower_array[ishower]->set_hsx(shower_hsx[ishower]);
+    shower_array[ishower]->set_hsy(shower_hsy[ishower]);
+  }
+
+
+  // Calculate the full shower properties 
+  
+//  std::cout<<"property process"<<endl;
+  for(unsigned int shwrNum0=0; shwrNum0<_shower_map->size() ; shwrNum0++) {
+    TMpcExShower *shower_v1 = _shower_map->getShower(shwrNum0); 
+    CalculateShowerProperties(shower_v1);
+    shower_v1->BuildContributorListMC(top_node); 
+  }
+
+  // Loop over showers to set the closestMPC flag 
+
+  for(unsigned int shwrNum0=0; shwrNum0<_shower_map->size() ; shwrNum0++) {
+    TMpcExShower *shower_v10 = _shower_map->getShower(shwrNum0); 
+
+    if(shower_v10->get_ClosestMPCClusterIndex()<0) continue; // no associated cluster
+
+    bool closest = true; 
+    for(unsigned int shwrNum1=0; shwrNum1<_shower_map->size() ; shwrNum1++) {
+      TMpcExShower *shower_v11 = _shower_map->getShower(shwrNum1);
+      if(shwrNum0==shwrNum1) continue; // don't compare shower to itself. 
+      // not the same cluster
+      if(shower_v11->get_ClosestMPCClusterIndex()!=shower_v10->get_ClosestMPCClusterIndex()) continue;  
+      if(shower_v11->get_ClosestMPCClusterDistance() < shower_v10->get_ClosestMPCClusterDistance()){
+  	closest = false; 
+  	break; 
+      }
+    }
+    if(closest) shower_v10->set_ClosestMPCClusterClosestFlag(1); 
+
+  }
+
+  return true;
+}
+
 
 void  mMpcExShowerV2::MergeShowers(TMpcExShower *main, TMpcExShower *splinter)
 {
@@ -558,7 +738,13 @@ void  mMpcExShowerV2::CalculateShowerProperties(TMpcExShower *shower_v1){
       unsigned int nhits = shower_v1->sizeHits(); 
       for(unsigned int i=0; i<nhits ; i++){
 
-	  TMpcExHit *hit_ptr3 = _hit_map->get_hit_by_key( shower_v1->getHit(i) );
+//	  TMpcExHit *hit_ptr3 = _hit_map->get_hit_by_key( shower_v1->getHit(i) );
+          
+	  TMpcExHit *hit_ptr3 = _hit_map->getUncalHit( shower_v1->getHit(i) );
+//	  if(hit_ptr3 != hit_ptr3_test){ 
+//	    std::cout<<"  key different "<<hit_ptr3->key()<<"  "<<hit_ptr3_test->key()<<std::endl;
+//	  }
+
 
 	  double q_hit = hit_ptr3->combined(); 
 	  short layer = hit_ptr3->layer();
@@ -620,7 +806,13 @@ void  mMpcExShowerV2::CalculateShowerProperties(TMpcExShower *shower_v1){
 
       for(unsigned int i=0; i<nhits ; i++){
 
-	  TMpcExHit *hit_ptr3 = _hit_map->get_hit_by_key( shower_v1->getHit(i) );
+//	  TMpcExHit *hit_ptr3 = _hit_map->get_hit_by_key( shower_v1->getHit(i) );
+
+	  TMpcExHit *hit_ptr3 = _hit_map->getUncalHit( shower_v1->getHit(i) );
+	//  if(hit_ptr3->key() != hit_ptr3_test->key()){ 
+	//    std::cout<<"  key different "<<hit_ptr3->key()<<"  "<<hit_ptr3_test->key()<<std::endl;
+	//  }
+
 
 	  double q_hit = hit_ptr3->combined(); 
 	  short layer = hit_ptr3->layer();
