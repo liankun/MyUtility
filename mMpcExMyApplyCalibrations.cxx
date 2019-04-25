@@ -21,11 +21,9 @@
 #include "TH1D.h"
 #include <functional>
 #include <sstream>
-#include <fstream>
 
-mMpcExMyApplyCalibrations::mMpcExMyApplyCalibrations() : SubsysReco("MMPCEXAPPLYCALIBRATIONS") {
- 
- _50kev_cut_off = false;
+mMpcExMyApplyCalibrations::mMpcExMyApplyCalibrations() : SubsysReco("MMPCEXMYAPPLYCALIBRATIONS") {
+
  //initialize the flag to default fail
   for (unsigned int a=0; a < MpcExConstants::NARMS; a++) { //arm loop
     for (unsigned int p=0; p < MpcExConstants::NPACKETS_PER_ARM; p++) { //packet
@@ -130,39 +128,6 @@ mMpcExMyApplyCalibrations::mMpcExMyApplyCalibrations() : SubsysReco("MMPCEXAPPLY
   _histo_pedsub_low_statephase = NULL;
   _histo_pedsub_high_statephase = NULL;
 
-  for(int i=0;i<49152;i++){
-    _e_fit_cor[i] = -9999;
-    _good_low_gain_neighbor[i] = -9999;
-  }
-  std::ifstream in_txt("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/install/share/MyUtility/minipads_scale_smear_include_low_gain_db_v4.txt");
-  if(in_txt.is_open()){
-    int key;
-    float tmp_value[2];
-    while(in_txt>>key>>tmp_value[0]>>tmp_value[1]
-	 ){
-        
-      _e_fit_cor[key] = tmp_value[0];
-      
-//      std::cout<<key<<"  "
-//                    <<tmp_value[0]<<"  "
-//                    <<tmp_value[1]<<"  "
-//                    <<std::endl;
-    }
-  }
-  else{ 
-    std::cout<<"Open minipads_scale_smear_db.txt failed !!!"<<std::endl;
-  }
-  in_txt.close();
-
-  std::ifstream in_txt1("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/install/share/MyUtility/neighbor_minipads_can_calibrate_low_gain.txt");
-  if(in_txt1.is_open()){ 
-    int key1=0;
-    int key2=0;
-    while(in_txt1>>key1>>key2){ 
-      _good_low_gain_neighbor[key1]=key2;
-//      std::cout<<key1<<"  "<<key2<<std::endl;
-    }
-  }
 }
 
 mMpcExMyApplyCalibrations::~mMpcExMyApplyCalibrations(){
@@ -304,7 +269,7 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
     //because *itr is the pointer owned by TMpcExHitSet
     //and this pointer will eventually be owned by 
     //the TMpcExHitContainer on the node tree
-    TMpcExHit *hit = new TMpcExHit(raw_hits->getOnlineKey(iraw));
+    TMpcExHit *hit = hits->getUncalHit(raw_hits->getOnlineKey(iraw));
     hit->set_low(raw_hits->getladc(iraw));
     hit->set_high(raw_hits->gethadc(iraw));
     hit->set_state_low(TMpcExHit::ADC);
@@ -319,7 +284,6 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
       std::cout<<PHWHERE<<" Something is terribly wrong -- I could not get the calibrations for minipad with key: "
 	       <<hit->key()<<std::endl;
       std::cout<<PHWHERE<<" Doing nothing..."<<std::endl;
-      delete hit; //avoid the memory leak...
       continue;
     }
 
@@ -332,7 +296,6 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
       
     // PARST check 
     if( ((PARSTCode==2) && (arm==0)) || ((PARSTCode==3) && (arm==1)) ){
-      delete hit; 
       continue; 
     }
 
@@ -344,7 +307,6 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
 	if(_makeHisto){
 	  _histo_badcellid->Fill(chipmap);
 	}
-	delete hit; //avoid the memory leak
 	continue;
       }
 
@@ -493,9 +455,6 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
 	  ((hit->state_high()==TMpcExHit::PEDESTAL_SUBTRACTED) && (hit->status_high()==0)) ){
         hits->addHit(hit);
       }
-      else{
-	delete hit; 
-      }
 
     }
     else{
@@ -572,7 +531,6 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
 	      // Nothing here, move along....
 	    }
 	    else{
-	      delete hit; 
 	      ++iter; 
 	      continue; 
 	    }
@@ -613,60 +571,64 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
 	    float HL_ratio = 0.0; 
 	    float MPV_layer_adjust = MpcExConstants::MIP_IN_keV; 
 
-	    if( (calibMode != mMpcExMyApplyCalibrations::COMPLETE_FIXED_MC_PERFECT) && 
-		(calibMode != mMpcExMyApplyCalibrations::COMPLETE_FIXED_MC) && 
-		(calibMode != mMpcExMyApplyCalibrations::COMPLETE_FIXED_REALPED) ){
-
-	      // We need to include a check in here if the calibrations are 
-	      // valid, and dump out if they are not: 
+	    // We need to include a check in here if the calibrations are 
+	    // valid, and dump out if they are not:
+	    // THIS HAPPENS FOR FIXED CALIBRATIONS AS WELL
 	      
-	      bool MPs_OK = false; 
-	      bool HL_OK = false; 
+	    bool MPs_OK = false; 
+	    bool HL_OK = false; 
 
-	      if(calib->get_mip_in_sensor()>0.0){
-	        MIP_sensor = calib->get_mip_in_sensor();
-		MPs_OK = true; 
-	      }
-
-	      if(calib->get_high_low_ratio()>0.0){
-		// L/H ratio stored in DB
-	        HL_ratio = 1.0/calib->get_high_low_ratio();
-		
-		// Check the consistency of the H/L ratio and the data, 
-		// 5-sigma cut (sigma is on L/H value) 
-		if(H_L_ConsistencyCut && 
-		   (hit->status_low()==0) && (hit->status_low()==0) &&
-		   (hit->high()>0.0) && (hit->low()>0.0) && 
-		   (hit->high()<(MpcExConstants::MAX_ADC_COMBINE-calib->high_pedestal())) ){
-		  float fit_low = calib->get_high_low_offset() + calib->get_high_low_ratio()*hit->high();
-		  float lh_dist = fabs(fit_low-hit->low())/sqrt(pow(calib->get_high_low_ratio(),2)+1.0);
-		  if(lh_dist <= 5.0*calib->get_high_low_sigma()) HL_OK = true;
-		}
-		else
-		  HL_OK = true; 
-	      }
-
-	      // bail out if hit cannot be calibrated
-	      if(!HL_OK || !MPs_OK){
-
-		if(!eliminateBad)
-		  hits->addHit(hit);
-		else
-		  delete hit; 
-
-		++iter; 
-		continue; 
-
-	      }
-
-
+	    if(calib->get_mip_in_sensor()>0.0){
+	      MIP_sensor = calib->get_mip_in_sensor();
+	      MPs_OK = true; 
 	    }
-	    else{
+
+	    if(calib->get_high_low_ratio()>0.0){
+	      // L/H ratio stored in DB
+	      HL_ratio = 1.0/calib->get_high_low_ratio();
+	      HL_OK = true; 
+	    }
+
+	    if( (calibMode == mMpcExMyApplyCalibrations::COMPLETE_FIXED_MC_PERFECT) || 
+		(calibMode == mMpcExMyApplyCalibrations::COMPLETE_FIXED_MC) ||
+		(calibMode == mMpcExMyApplyCalibrations::COMPLETE_FIXED_REALPED) ){
+
+	      // Reset the values for FIXED calibrations
+		
 	      MIP_sensor = MpcExConstants::FIXED_MIP_L27;
 	      if((hit->layer()==0) || (hit->layer()==1)) MIP_sensor = MpcExConstants::FIXED_MIP_L01;
-	      HL_ratio = MpcExConstants::FIXED_HL_RATIO;
+	      HL_ratio = MpcExConstants::FIXED_HL_RATIO; 
+
+	      if( calibMode == mMpcExMyApplyCalibrations::COMPLETE_FIXED_MC_PERFECT ) {
+		MPs_OK = true; 
+		HL_OK = true; 
+	      }
+
+	    }
+	    else{		
+	      // Check the consistency of the H/L ratio and the data, 
+	      // 5-sigma cut (sigma is on L/H value) 
+	      if(H_L_ConsistencyCut && HL_OK && 
+		 (hit->status_low()==0) && (hit->status_high()==0) &&
+		 (hit->high()>0.0) && (hit->low()>0.0) && 
+		 (hit->high()<(MpcExConstants::MAX_ADC_COMBINE-calib->high_pedestal())) ){
+		float fit_low = calib->get_high_low_offset() + calib->get_high_low_ratio()*hit->high();
+		float lh_dist = fabs(fit_low-hit->low())/sqrt(pow(calib->get_high_low_ratio(),2)+1.0);
+		if(lh_dist > 5.0*calib->get_high_low_sigma()) HL_OK = false;
+	      }
 	    }
 
+	    // bail out if hit cannot be calibrated
+	    if(!HL_OK || !MPs_OK){
+
+	      if(!eliminateBad)
+		hits->addHit(hit);
+
+	      ++iter; 
+	      continue; 
+
+	    }
+      
 	    // For histogramming purposes, separate out application of sensor-by-sensor and minipad-by-minipad corrections. 
 	    // For comparison with reference histograms the MIP peak is at 1, i.e. no energy scale is applied. 
 	    // Also, no random shift is applied.
@@ -690,15 +652,12 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
 
 	      if(calib->get_minipad_mip_correction()>0.0) {
 		MIP_sensor *= calib->get_minipad_mip_correction();
-                MIP_sensor /= calib->get_mip_correction(); // Liankun's charged track MIP correction
-	        if(_e_fit_cor[hit->key()] > 0) MIP_sensor /= _e_fit_cor[hit->key()];
-	
+		MIP_sensor /= calib->get_mip_correction(); // Liankun's charged track MIP correction
+		MIP_sensor /= calib->get_smear_scale(); // Liankun's final charged track correction
 	      }
 	      else{
 		if(!eliminateBad)
 		  hits->addHit(hit);
-		else
-		  delete hit; 
 
 		++iter; 
 		continue; 
@@ -707,22 +666,6 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
 	      if( (!disable_MPV_layer_adjust) && (calib->get_mip_layer_mpv()>0.0) ) 
 		MPV_layer_adjust = calib->get_mip_layer_mpv(); 
 		    
-	    }
-	    else{ 
-	    //make change here , to make sure for the channels whose high gain is bad and 
-	    //low gain is good, they can't go to simulation. except for channels which can
-	    //use its neighbor calibration
-	      if(hit->status_high()>0 && _good_low_gain_neighbor[key]<0 &&
-	        calibMode != mMpcExMyApplyCalibrations::COMPLETE_FIXED_MC_PERFECT
-		){ 
-        	if(!eliminateBad)
-		  hits->addHit(hit);
-		else
-		  delete hit; 
-
-		++iter; 
-		continue; 
-	      }
 	    }
 
 	    if(fillHistos && _makeHisto){
@@ -830,8 +773,6 @@ int mMpcExMyApplyCalibrations::process_event(PHCompositeNode *topNode){
 	    else{
 	      if(hit->isGoodCombinedHit())
 		hits->addHit(hit);
-	      else
-		delete hit; 
 	    }
 
 	    ++iter; 
@@ -1116,16 +1057,13 @@ void mMpcExMyApplyCalibrations::SigmaCut(TMpcExHit *hit, TMpcExCalib *calib)
 
 void mMpcExMyApplyCalibrations::SigmaCutMIP(TMpcExHit *hit, TMpcExCalib *calib) 
 {
-  float cor = 1;
-  if(_e_fit_cor[hit->key()] > 0){
-//    cor = _e_fit_cor[hit->key()]/calib->get_mip_correction();
-    cor = _e_fit_cor[hit->key()];
-  }
-  
-  if(_50kev_cut_off) cor = 0;
-  if(hit->low()<=calib->get_mip_corr_mpv()*cor || hit->low() < 50)
+
+  double cor=0;
+
+  if(hit->low()<=calib->get_mip_corr_cutoff_position()*cor || hit->low()<50)
     hit->set_status_low(TMpcExHit::FAILS_SIGMA_CUT );
 
-  if (hit->high()<=calib->get_mip_corr_mpv()*cor || hit->high() < 50) 
+  if (hit->high()<=calib->get_mip_corr_cutoff_position()*cor || hit->high()<50) 
     hit->set_status_high(TMpcExHit::FAILS_SIGMA_CUT );
+
 }

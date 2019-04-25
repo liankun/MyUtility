@@ -36,8 +36,6 @@ class mMpcExMyApplyCalibrations : public SubsysReco {
 
   //! Constructor
   mMpcExMyApplyCalibrations();
-  
-  void set_50kev_cutoff(){_50kev_cut_off = true;  }
 
   //! Constructor
   virtual ~mMpcExMyApplyCalibrations();
@@ -139,11 +137,6 @@ class mMpcExMyApplyCalibrations : public SubsysReco {
 
   // random number generator
   TRandom3 *r3; 
-  float _e_fit_cor[49152];
-  int _good_low_gain_neighbor[49152];
-
-  bool _50kev_cut_off;
-
 
 };
 
