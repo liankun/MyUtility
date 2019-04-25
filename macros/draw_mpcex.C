@@ -2,8 +2,8 @@ void draw_mpcex(){
   gSystem->Load("libMyUtility.so");
   Exogram* hexo[2];
 
-  hexo[0] = new Exogram("hexo0","Exogram South Arm",900,-24,24,900,-24,24,8,-0.5,7.5);
-  hexo[1] = new Exogram("hexo1","Exogram North Arm",900,-24,24,900,-24,24,8,-0.5,7.5);
+  hexo[0] = new Exogram("hexo0","Exogram South Arm",900,-19.5,19.5,900,-19.5,19.5,8,-0.5,7.5);
+  hexo[1] = new Exogram("hexo1","Exogram North Arm",900,-19.5,19.5,900,-19.5,19.5,8,-0.5,7.5);
   
   MpcExMapper* ex_map = MpcExMapper::instance();
   ExAcpt* ex_acpt = ExAcpt::instance();

@@ -26,5 +26,6 @@
 #pragma link C++ class ExSimEventV2;
 #pragma link C++ class ExSimEventV3;
 #pragma link C++ class ExHitList;
+#pragma link C++ class mMpcExShowerV2;
 
 #endif /* __CINT__ */
