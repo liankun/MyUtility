@@ -13,6 +13,7 @@ void MiniClusterV1::Reset(){
   _rms_x = -9999;
   _rms_y = -9999;
   _radius = -9999;
+  _sq_nxn_e.clear();
   memset(_layer_pk_e,0,sizeof(_layer_pk_e));
   memset(_layer_ex_e,0,sizeof(_layer_ex_e));
 

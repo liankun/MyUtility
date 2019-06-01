@@ -15,7 +15,10 @@ class MiniClusterV1:MiniCluster
      double GetRadius() {return _radius;}
      double GetPkE();
      double GetExE();
-    
+   
+     unsigned int GetGridRange(){return _sq_nxn_e.size();}
+     double GetSqENxN(unsigned int i) {if(i<_sq_nxn_e.size()) return _sq_nxn_e[i];return -9999;}
+
      double GetLayerPkE(unsigned int i) {if(i<8) return _layer_pk_e[i];return -9999;}
      double GetLayerE(unsigned int i) {if(i<8) return _layer_ex_e[i];return -9999;}
      unsigned int GetNSq(){return _sq_list.size();}
@@ -44,6 +47,7 @@ class MiniClusterV1:MiniCluster
      void SetIsSeedPk(bool val) {_is_seed_pk = val;}
 
      void InsertSq(Square* sq ){_sq_list.push_back(sq);}
+     void InsertSqENxN(double val) {_sq_nxn_e.push_back(val);}
 
      virtual void Reset();
 
@@ -60,6 +64,7 @@ class MiniClusterV1:MiniCluster
     double _layer_ex_e[8];
     bool _is_seed_pk;
     std::vector<Square*> _sq_list;
+    std::vector<double> _sq_nxn_e;
 
 };
 

@@ -333,6 +333,7 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
         
         //make sure we update for each iteration
         bool is_update = false;
+	double sq_nxn_e = 0;
         //for x = sq_ix-grid_rad or sq_ix+grid_rad
         for(int eg_i=0;eg_i<2;eg_i++){
           if(out_ix[eg_i]>=nsquare || out_ix[eg_i]<0) continue;
@@ -344,6 +345,7 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
               double eg_x = sq_array[out_ix[eg_i]][s]->GetX();
               double eg_y = sq_array[out_ix[eg_i]][s]->GetY();
               double eg_e = sq_array[out_ix[eg_i]][s]->GetE();
+	      sq_nxn_e+= eg_e;
               if(_debug) cout<<"square E: "<<eg_e<<endl;
               sum_x += eg_e*eg_x;
               sum_x2 += eg_e*eg_x*eg_x;
@@ -372,6 +374,7 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
               double eg_x = sq_array[s][out_iy[eg_i]]->GetX();
               double eg_y = sq_array[s][out_iy[eg_i]]->GetY();
               double eg_e = sq_array[s][out_iy[eg_i]]->GetE();
+	      sq_nxn_e+= eg_e;
 	      if(_debug) cout<<"square E: "<<eg_e<<endl;
               sum_x += eg_e*eg_x;
               sum_x2 += eg_e*eg_x*eg_x;
@@ -395,6 +398,8 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 	  break;
 	}
         
+        if(sq_nxn_e>0) mini_cluster->InsertSqENxN(sq_nxn_e);
+
         double tmp_mean_x = sum_x/norm;
         double tmp_mean_y = sum_y/norm;
         double tmp_mean_x2 = sum_x2/norm;

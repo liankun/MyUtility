@@ -73,9 +73,9 @@ class MiniCluster
     virtual double GetPkE() {std::cout<<WHERE<<" GetPKE "<<std::endl;return -9999;}
     virtual double GetExE() {std::cout<<WHERE<<" GetExE "<<std::endl;return -9999;}
     //get the largest grid range, the max size of nxn
-    virtual unsigned int GetGridRange() {std::cout<<WHERE<<" GetExE  "<<std::endl;return 0;} 
+    virtual unsigned int GetGridRange() {std::cout<<WHERE<<" GetGridRange  "<<std::endl;return 0;} 
     //energy of nxn square energy 
-    virtual double GetSqENxN(unsigned int n) {std::cout<<WHERE<<" GetExE   "<<std::endl;return 0;} 
+    virtual double GetSqENxN(unsigned int n) {std::cout<<WHERE<<" GetSqENxN  "<<std::endl;return 0;} 
 
     //we can seperate MpcE for this miniCluster in future
     virtual double GetMpcE() {std::cout<<WHERE<<" GetMpcE "<<std::endl;return -9999;}
