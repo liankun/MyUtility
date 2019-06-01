@@ -38,6 +38,8 @@ class TrueParticle : public TObject
     
     int GetID() {return _id;}
     int GetParentID() {return _parent_id;}
+    //don't use the vertex here for primary 
+    //it may not exist
     float GetVertex() {return _vertex;}
     float GetPx() {return _px;}
     float GetPy() {return _py;}

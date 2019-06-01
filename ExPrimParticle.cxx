@@ -4,6 +4,7 @@
 #include <primaryWrapper.h>
 #include <BbcOut.h>
 #include <PHGlobal.h>
+#include <Fun4AllServer.h>
 
 PrimaryParticle::PrimaryParticle(){
   TrueParticle();
@@ -44,26 +45,48 @@ void PrimPartList::Clear(Option_t* option){
   Reset();
 }
 
-void PrimPartList::AddFromPrimary(PHCompositeNode* simNode){
-  if(!simNode){
+void PrimPartList::AddFromPrimary(PHCompositeNode* topNode){
+  if(!topNode){
     std::cout<<"Null Node !!!"<<std::endl;
     return;
   }
+  
+  //for simnode, it may not have primary vertex
+  PHGlobal* phglobal = findNode::getClass<PHGlobal>(topNode,"PHGlobal");
+  BbcOut* bbcout = findNode::getClass<BbcOut>(topNode,"BbcOut");
 
-  PHGlobal* phglobal = findNode::getClass<PHGlobal>(simNode,"PHGlobal");
-  BbcOut* bbcout = findNode::getClass<BbcOut>(simNode,"BbcOut");
-  if(!bbcout && !phglobal){
-    std::cout <<"No BbcOut or PHGlobal !!!"<<std::endl;
-    return;
-  }
-
-  double vertex = (phglobal==0) ? phglobal->getBbcZVertex() : bbcout->get_VertexPoint();
-
-  primaryWrapper* primary = findNode::getClass<primaryWrapper>(simNode, "primary");
+  primaryWrapper* primary = findNode::getClass<primaryWrapper>(topNode, "primary");
   if(!primary){
     std::cout<<"No primaryWrapper !"<<std::endl;
     return;
   }
+  
+  //check for embeding
+  Fun4AllServer *se = Fun4AllServer::instance();
+  PHCompositeNode* simNode = se->topNode("SIM");
+  
+  if(simNode){
+    PHGlobal* phglobal_sim = findNode::getClass<PHGlobal>(simNode,"PHGlobal");
+    BbcOut* bbcout_sim = findNode::getClass<BbcOut>(simNode,"BbcOut");
+
+    primaryWrapper* primary_sim = findNode::getClass<primaryWrapper>(simNode, "primary");
+
+    if(phglobal_sim && bbcout_sim && primary_sim){
+      phglobal = phglobal_sim;
+      bbcout = bbcout_sim;
+      primary = primary_sim;
+    }
+  }
+
+
+  double vertex = -9999;
+  if(!bbcout && !phglobal){
+    std::cout <<"No BbcOut or PHGlobal !!!"<<std::endl;
+  }
+  else{
+    vertex = (phglobal==0) ? phglobal->getBbcZVertex() : bbcout->get_VertexPoint();
+  }
+
   size_t nprim = primary->RowCount();
 
   for(size_t iprim=0;iprim < nprim;iprim++){

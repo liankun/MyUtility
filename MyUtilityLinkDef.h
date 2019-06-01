@@ -27,5 +27,8 @@
 #pragma link C++ class ExSimEventV3;
 #pragma link C++ class ExHitList;
 #pragma link C++ class mMpcExShowerV2;
+#pragma link C++ class MiniCluster;
+#pragma lkin C++ class MiniClusterV1;
+#pragma link C++ class ExMiniClusters;
 
 #endif /* __CINT__ */

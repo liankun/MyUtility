@@ -45,7 +45,9 @@ include_HEADERS = \
   ExSimEventV2.h \
   ExSimEventV3.h \
   mMpcExShowerV2.h \
-  ExHitList.h
+  ExHitList.h \
+  ExMiniClusters.h \
+  MiniClusterV1.h
  
 libMyUtility_la_SOURCES = \
   ExEvent.cxx \
@@ -67,7 +69,9 @@ libMyUtility_la_SOURCES = \
   ExHitList.cxx \
   ExSimEventV2.cxx \
   ExSimEventV3.cxx \
-  mMpcExShowerV2.C
+  mMpcExShowerV2.C \
+  ExMiniClusters.cxx \
+  MiniClusterV1.cxx
 
 libMyUtility_la_LIBADD = \
   -L$(libdir) \
@@ -106,6 +110,8 @@ MyUtility_Dict.C: \
   ExHitList.h \
   ExSimEventV3.h \
   mMpcExShowerV2.h \
+  ExMiniClusters.h \
+  MiniClusterV1.h \
   MyUtilityLinkDef.h 
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) $^
 
