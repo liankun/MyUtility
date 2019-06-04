@@ -19,7 +19,7 @@ using namespace std;
 
 ExMiniClusters::ExMiniClusters(){
   _debug = false;
-  _th_rms = 2;
+  _th_rms = 2.4;
   _th_rms_asy = 0.5;
   _max_iterate = 100;
   _sq_cuts = false;
@@ -31,7 +31,7 @@ ExMiniClusters::ExMiniClusters(ExShower* ex_shower){
   _mini_cluster_list.clear();
   _delete_sq_list.clear();
   _debug = false;
-  _th_rms = 2.;
+  _th_rms = 2.4;
   _th_rms_asy = 0.5;
   _max_iterate = 100;
   _sq_cuts = false;
@@ -42,7 +42,7 @@ ExMiniClusters::ExMiniClusters(TMpcExShower* shower,TMpcExHitContainer* hits){
   _mini_cluster_list.clear();
   _delete_sq_list.clear();
   _debug = false;
-  _th_rms = 2.;
+  _th_rms = 2.4;
   _th_rms_asy = 0.5;
   _max_iterate = 100;
   _sq_cuts = false;
@@ -427,8 +427,11 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 	    break;
 	  }
 	}
+      
+//	int tmp_sq_ix = (tmp_mean_x-space_min)/dspace;
+//	int tmp_sq_iy = (tmp_mean_y-space_min)/dspace;
         
-        grid_rad++;//increase by 1 
+	grid_rad++;//increase by 1
         niter++;
       }//while
       
