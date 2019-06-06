@@ -10,8 +10,8 @@ class MiniClusterV1:MiniCluster
      virtual ~MiniClusterV1();
 
      double GetRMS(){
-       double rms = sqrt(_rms_x*_rms_x+_rms_y*_rms_y);
-       if(_rms_x*_rms_x+_rms_y*_rms_y<=0) rms=0;
+       double rms = sqrt(_rms_x*_rms_x+_rms_y*_rms_y+1.0e-10);
+       if(rms<=1.0e-4) rms=0;
        return rms;
      }
      double GetRMSX() {return _rms_x;}

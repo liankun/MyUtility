@@ -325,7 +325,7 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 
       if(_debug){
         cout<<"create mini cluster "<<endl;
-
+        sq_pk_non_pk_list[i_is_pk][i]->Print();
       } 
       
       
@@ -419,15 +419,15 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
         double tmp_mean_x2 = sum_x2/norm;
         double tmp_mean_y2 = sum_y2/norm;
 
-        double tmp_rms_x = sqrt(tmp_mean_x2-tmp_mean_x*tmp_mean_x);
-	if(tmp_mean_x2<=tmp_mean_x*tmp_mean_x) tmp_rms_x=0.2/sqrt(12.);
+        double tmp_rms_x = sqrt(tmp_mean_x2-tmp_mean_x*tmp_mean_x+1.0e-10);
+	if(tmp_rms_x<=1.0e-4) tmp_rms_x=0.2/sqrt(12.);
         if(_debug) cout<<"tmp_rms_x "<<tmp_rms_x<<endl;
 
-        double tmp_rms_y = sqrt(tmp_mean_y2-tmp_mean_y*tmp_mean_y);
-	if(tmp_mean_y2<=tmp_mean_y*tmp_mean_y) tmp_rms_y=0.2/sqrt(12.);
+        double tmp_rms_y = sqrt(tmp_mean_y2-tmp_mean_y*tmp_mean_y+1.0e-10);
+	if(tmp_rms_y<=1.0e-4) tmp_rms_y=0.2/sqrt(12.);
 	if(_debug) cout<<"tmp_rms_y "<<tmp_rms_y<<endl;
 
-        double tmp_rms_r = sqrt(tmp_rms_x*tmp_rms_x+tmp_rms_y*tmp_rms_y);
+        double tmp_rms_r = sqrt(tmp_rms_x*tmp_rms_x+tmp_rms_y*tmp_rms_y+1.0e-10);
         
 	if(niter==0){
 	//first iteration
@@ -450,6 +450,7 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 	}
 
 	if(tmp_rms_x+tmp_rms_y>0.00001){
+	  
 	  double tmp_rms_asy = fabs(tmp_rms_x-tmp_rms_y)/(tmp_rms_x+tmp_rms_y);
 	  if(tmp_rms_asy>0.5){
 	    if(_debug) cout<<"large rms asymmetry !"<<endl;
@@ -475,10 +476,10 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
       double mean_x2 = sum_x2/norm;
       double mean_y2 = sum_y2/norm;
 
-      double rms_x = sqrt(mean_x2-mean_x*mean_x);
-      if(mean_x2<=mean_x*mean_x) rms_x = 0;
-      double rms_y = sqrt(mean_y2-mean_y*mean_y);
-      if(mean_y2<=mean_y*mean_y) rms_y=0;
+      double rms_x = sqrt(mean_x2-mean_x*mean_x+1.0e-10);
+      if(rms_x<=1.0e-4) rms_x=0;
+      double rms_y = sqrt(mean_y2-mean_y*mean_y+1.0e-10);
+      if(rms_y<=1.0e-4) rms_y=0;
 
       mini_cluster->SetX(mean_x);
       mini_cluster->SetY(mean_y);
