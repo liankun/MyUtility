@@ -17,10 +17,21 @@
 
 using namespace std;
 
+void Square::Print(){
+  cout<<"square: "
+      <<" x: "<<_x
+      <<" y: "<<_y
+      <<" ix: "<<_ix
+      <<" iy: "<<_iy
+      <<" E: "<<GetE()
+      <<endl;
+}
+
 ExMiniClusters::ExMiniClusters(){
   _debug = false;
-  _th_rms = 2.4;
+  _th_rms = 2.2;
   _th_rms_asy = 0.5;
+  _th_pk_mean_dist = 0.5;
   _max_iterate = 100;
   _sq_cuts = false;
   _mini_cluster_list.clear();
@@ -31,8 +42,9 @@ ExMiniClusters::ExMiniClusters(ExShower* ex_shower){
   _mini_cluster_list.clear();
   _delete_sq_list.clear();
   _debug = false;
-  _th_rms = 2.4;
+  _th_rms = 2.2;
   _th_rms_asy = 0.5;
+  _th_pk_mean_dist = 0.5;
   _max_iterate = 100;
   _sq_cuts = false;
   ConstructMiniClusters(ex_shower);
@@ -42,8 +54,9 @@ ExMiniClusters::ExMiniClusters(TMpcExShower* shower,TMpcExHitContainer* hits){
   _mini_cluster_list.clear();
   _delete_sq_list.clear();
   _debug = false;
-  _th_rms = 2.4;
+  _th_rms = 2.2;
   _th_rms_asy = 0.5;
+  _th_pk_mean_dist = 0.5;
   _max_iterate = 100;
   _sq_cuts = false;
   ConstructMiniClusters(shower,hits);
@@ -283,6 +296,8 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
     for(unsigned int i=0;i<sq_pk_non_pk_list[i_is_pk].size();i++){
       int sq_ix = sq_pk_non_pk_list[i_is_pk][i]->GetGridX();
       int sq_iy = sq_pk_non_pk_list[i_is_pk][i]->GetGridY();
+      double sq_x = sq_pk_non_pk_list[i_is_pk][i]->GetX();
+      double sq_y = sq_pk_non_pk_list[i_is_pk][i]->GetY();
       
       if(_debug){
 //        cout<<"pk non pk set: "<<i_is_pk<<endl;
@@ -296,18 +311,23 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
       
       //used_square[sq_ix][sq_iy] = true;
       //use this as seed, first,3x3 array,
-      //then 5x5,7x7 ...
-      //until the distance from the new square to the center 
-      //is large than _th_rms*rms
-      //this equalent to: radius+dspace>_th_rms*rms
       double sum_x = 0;
       double sum_x2 = 0;
       double sum_y = 0;
       double sum_y2 = 0;
       double norm = 0;
-      int grid_rad = 0;
       
-      if(_debug) cout<<"create mini cluster "<<endl;
+      //define the outline of the mxn box
+      int left = 0;
+      int right = 0;
+      int up = 0;
+      int down = 0;
+
+      if(_debug){
+        cout<<"create mini cluster "<<endl;
+
+      } 
+      
       
       MiniClusterV1* mini_cluster = new MiniClusterV1();
       _mini_cluster_list.push_back((MiniCluster*)mini_cluster);
@@ -317,7 +337,11 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 
       mini_cluster->SetPkX(sq_pk_non_pk_list[i_is_pk][i]->GetX());
       mini_cluster->SetPkY(sq_pk_non_pk_list[i_is_pk][i]->GetY());
-      
+     
+      mini_cluster->SetPkGridX(sq_pk_non_pk_list[i_is_pk][i]->GetGridX());
+      mini_cluster->SetPkGridY(sq_pk_non_pk_list[i_is_pk][i]->GetGridY());
+
+
       //set layer E
       for(int ilayer=0;ilayer<8;ilayer++){ 
         mini_cluster->SetLayerPkE(ilayer,sq_pk_non_pk_list[i_is_pk][i]->GetLayerE(ilayer));
@@ -325,72 +349,57 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 
       int niter = 0;
       while(niter<_max_iterate){ 
-        //###
-        //#*#
-        //###
-        int out_ix[2] = {sq_ix-grid_rad,sq_ix+grid_rad};
-        int out_iy[2] = {sq_iy-grid_rad,sq_iy+grid_rad};
+        //try nxm array square when enlarge 
+	//each time we only iter out range
+	//for example
+	//1 2 3
+	//4 5 6
+	//7 8 9
+	//we iter all except 5
+	//the algo is performed as following
+	//when iud (iter y) is located on bottom or top
+	//we set the iter step to 1
+	//if iud is betwen center (like 4 5 6)
+	//set the step to 2, then we will skip 5
         
-        //make sure we update for each iteration
+	//make sure we update for each iteration
         bool is_update = false;
 	double sq_nxn_e = 0;
-        //for x = sq_ix-grid_rad or sq_ix+grid_rad
-        for(int eg_i=0;eg_i<2;eg_i++){
-          if(out_ix[eg_i]>=nsquare || out_ix[eg_i]<0) continue;
-          for(int s=out_iy[0];s<=out_iy[1];s++){
-            if(s<0 || s>=nsquare) continue;
-            if(used_square[out_ix[eg_i]][s]) continue;
-            if(sq_array[out_ix[eg_i]][s]){
-              used_square[out_ix[eg_i]][s]=true;
-              double eg_x = sq_array[out_ix[eg_i]][s]->GetX();
-              double eg_y = sq_array[out_ix[eg_i]][s]->GetY();
-              double eg_e = sq_array[out_ix[eg_i]][s]->GetE();
-	      sq_nxn_e+= eg_e;
-              if(_debug) cout<<"square E: "<<eg_e<<endl;
-              sum_x += eg_e*eg_x;
-              sum_x2 += eg_e*eg_x*eg_x;
-              sum_y += eg_e*eg_y;
-              sum_y2 += eg_e*eg_y*eg_y;
-              norm += eg_e;
-              mini_cluster->InsertSq(sq_array[out_ix[eg_i]][s]);
-              for(int ilayer=0;ilayer<8;ilayer++){ 
-                double add_e = sq_array[out_ix[eg_i]][s]->GetLayerE(ilayer);
-                double cur_e = mini_cluster->GetLayerE(ilayer);
-                mini_cluster->SetLayerE(ilayer,add_e+cur_e);
-              }//ilayer
-              is_update = true;
-            }//if
-          } 
-        }//eg_i
 
-        //for y = [sq_iy-grid_rad,sq_iy+grid_rad]
-        for(int eg_i=0;eg_i<2;eg_i++){
-          if(out_iy[eg_i]>=nsquare || out_iy[eg_i]<0) continue;
-          for(int s=out_ix[0]+1;s<out_ix[1];s++){
-            if(s<0 || s>=nsquare) continue;
-            if(used_square[s][out_iy[eg_i]]) continue;
-            if(sq_array[s][out_iy[eg_i]]){
-              used_square[s][out_iy[eg_i]]=true;
-              double eg_x = sq_array[s][out_iy[eg_i]]->GetX();
-              double eg_y = sq_array[s][out_iy[eg_i]]->GetY();
-              double eg_e = sq_array[s][out_iy[eg_i]]->GetE();
-	      sq_nxn_e+= eg_e;
-	      if(_debug) cout<<"square E: "<<eg_e<<endl;
-              sum_x += eg_e*eg_x;
-              sum_x2 += eg_e*eg_x*eg_x;
-              sum_y += eg_e*eg_y;
-              sum_y2 += eg_e*eg_y*eg_y;
-              norm += eg_e;
-              mini_cluster->InsertSq(sq_array[s][out_iy[eg_i]]);
+	for(int iud=sq_iy-down;iud<=sq_iy+up;iud++){
+	  if(iud>=nsquare || iud<0) continue;
+	  //iterate step
+	  int it_step=1;
+	  if(iud>sq_iy-down && iud<sq_iy+up) it_step = left+right;
+	  //for begining when left, right are the same
+	  //set it_step to 1 to avoid infinit loop
+	  if(it_step==0) it_step=1;
+	  for(int ilr=sq_ix-left;ilr<=sq_ix+right;ilr+=it_step){
+	    if(ilr>=nsquare || ilr<0) continue;
+            if(used_square[ilr][iud]) continue;
+	    //if the square exist or not
+            if(sq_array[ilr][iud]){
+              used_square[ilr][iud]=true;
+              double tmp_x = sq_array[ilr][iud]->GetX();
+              double tmp_y = sq_array[ilr][iud]->GetY();
+              double tmp_e = sq_array[ilr][iud]->GetE();
+	      sq_nxn_e+= tmp_e;
+              if(_debug) cout<<"square E: "<<tmp_e<<endl;
+              sum_x += tmp_e*tmp_x;
+              sum_x2 += tmp_e*tmp_x*tmp_x;
+              sum_y += tmp_e*tmp_y;
+              sum_y2 += tmp_e*tmp_y*tmp_y;
+              norm += tmp_e;
+              mini_cluster->InsertSq(sq_array[ilr][iud]);
               for(int ilayer=0;ilayer<8;ilayer++){ 
-                double add_e = sq_array[s][out_iy[eg_i]]->GetLayerE(ilayer);
+                double add_e = sq_array[ilr][iud]->GetLayerE(ilayer);
                 double cur_e = mini_cluster->GetLayerE(ilayer);
                 mini_cluster->SetLayerE(ilayer,add_e+cur_e);
               }//ilayer
               is_update = true;
             }//if
-          } 
-        }//eg_i
+	  }//ilr
+	}//iud
 
         //isolated
 	if(!is_update){
@@ -400,24 +409,44 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
         
         if(sq_nxn_e>0) mini_cluster->InsertSqENxN(sq_nxn_e);
 
-        double tmp_mean_x = sum_x/norm;
+	if(norm==0){
+	  cout<<WHERE<<" norm is zero should not happen"<<endl;
+	  return;
+	}
+
+	double tmp_mean_x = sum_x/norm;
         double tmp_mean_y = sum_y/norm;
         double tmp_mean_x2 = sum_x2/norm;
         double tmp_mean_y2 = sum_y2/norm;
 
         double tmp_rms_x = sqrt(tmp_mean_x2-tmp_mean_x*tmp_mean_x);
+	if(tmp_mean_x2<=tmp_mean_x*tmp_mean_x) tmp_rms_x=0.2/sqrt(12.);
         if(_debug) cout<<"tmp_rms_x "<<tmp_rms_x<<endl;
-	if(tmp_rms_x<0.00001) tmp_rms_x = 0.2/sqrt(12);
 
         double tmp_rms_y = sqrt(tmp_mean_y2-tmp_mean_y*tmp_mean_y);
+	if(tmp_mean_y2<=tmp_mean_y*tmp_mean_y) tmp_rms_y=0.2/sqrt(12.);
 	if(_debug) cout<<"tmp_rms_y "<<tmp_rms_y<<endl;
-	if(tmp_rms_y<0.00001) tmp_rms_y = 0.2/sqrt(12);
 
         double tmp_rms_r = sqrt(tmp_rms_x*tmp_rms_x+tmp_rms_y*tmp_rms_y);
         
-	if((grid_rad>0) && (tmp_rms_r*_th_rms<dspace*(grid_rad+1))){
-	  if(_debug) cout<<"rms converge !"<<endl;
-	  break;
+	if(niter==0){
+	//first iteration
+	//enlarge all
+	  left+=1;
+	  right+=1;
+	  up+=1;
+	  down+=1;
+	}
+	else{
+	  //the distance to mean center
+	  double dleft = (left+1)*dspace+(tmp_mean_x-sq_x);
+	  if(dleft<_th_rms*(tmp_rms_r)) left++;
+	  double dright = (right+1)*dspace+(sq_x-tmp_mean_x);
+	  if(dright<_th_rms*(tmp_rms_r)) right++;
+	  double dup = (up+1)*dspace+(sq_y-tmp_mean_y);
+	  if(dup<_th_rms*(tmp_rms_r)) up++;
+	  double ddown = (down+1)*dspace+(tmp_mean_y-sq_y);
+	  if(ddown<_th_rms*(tmp_rms_r)) ddown++;
 	}
 
 	if(tmp_rms_x+tmp_rms_y>0.00001){
@@ -426,12 +455,16 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 	    if(_debug) cout<<"large rms asymmetry !"<<endl;
 	    break;
 	  }
+
+	  //pk distance to mean x and y
+	  double pk_m_dx = fabs(sq_x - tmp_mean_x);
+	  double pk_m_dy = fabs(sq_y - tmp_mean_y);
+	  //double pk_m_dr = sqrt(pow(pk_m_dx,2)+pow(pk_m_dy,2));
+	  if(pk_m_dx>_th_pk_mean_dist*tmp_rms_x) break;
+	  if(pk_m_dy>_th_pk_mean_dist*tmp_rms_y) break;
+	  //if(pk_m_dr>_th_pk_mean_dist*tmp_rms_r) break;
+
 	}
-      
-//	int tmp_sq_ix = (tmp_mean_x-space_min)/dspace;
-//	int tmp_sq_iy = (tmp_mean_y-space_min)/dspace;
-        
-	grid_rad++;//increase by 1
         niter++;
       }//while
       
@@ -443,15 +476,15 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
       double mean_y2 = sum_y2/norm;
 
       double rms_x = sqrt(mean_x2-mean_x*mean_x);
+      if(mean_x2<=mean_x*mean_x) rms_x = 0;
       double rms_y = sqrt(mean_y2-mean_y*mean_y);
-      if(rms_x<0) rms_x = 0;
-      if(rms_y<0) rms_y = 0;
+      if(mean_y2<=mean_y*mean_y) rms_y=0;
 
       mini_cluster->SetX(mean_x);
       mini_cluster->SetY(mean_y);
       mini_cluster->SetRMSX(rms_x);
       mini_cluster->SetRMSY(rms_y);
-      mini_cluster->SetRadius(grid_rad*dspace+0.5*dspace);
+      mini_cluster->SetRadius(sqrt(pow((left+right)/2.,2)/2.+pow((up+down)/2.,2)/2.)*dspace+0.5*dspace);
     }//i
   }
 
@@ -566,8 +599,15 @@ void ExMiniClusters::VisualMiniClusters(const char* dataset){
   TH2D* hsquare_2d = new TH2D(Form("hsquare_2d_%d",ct),"Square 2D",214,-20,20,214,-20,20);
   hsquare_2d->GetXaxis()->SetTitle("X/cm");
   hsquare_2d->GetYaxis()->SetTitle("Y/cm");
-  _delete_list.push_back(hsquare_2d);
   
+  _delete_list.push_back(hsquare_2d);
+ 
+  TH2D* hsquare_2d_w_e = new TH2D(Form("hsquare_2d_%d_w_e",ct),"Square 2D",214,-20,20,214,-20,20);
+  hsquare_2d_w_e->GetXaxis()->SetTitle("X/cm");
+  hsquare_2d_w_e->GetYaxis()->SetTitle("Y/cm");
+
+  _delete_list.push_back(hsquare_2d_w_e);
+
   if(_debug) cout<<"Number of MiniCluster: "<<_mini_cluster_list.size()<<endl;
   for(unsigned int i=0;i<_mini_cluster_list.size();i++){
     int Nsq = _mini_cluster_list[i]->GetNSq();
@@ -577,7 +617,14 @@ void ExMiniClusters::VisualMiniClusters(const char* dataset){
       hsquare_2d->Fill(sq->GetX(),
                        sq->GetY(),
 		       sq->GetE());
+      hsquare_2d_w_e->Fill(sq->GetX(),
+                       sq->GetY(),
+		       _mini_cluster_list[i]->GetExE());
     }
+    hsquare_2d_w_e->Fill(_mini_cluster_list[i]->GetPkX(),
+                         _mini_cluster_list[i]->GetPkY(),
+		         _mini_cluster_list[i]->GetExE());
+
   }
 
   double mean_x = hsquare_2d->GetMean(1);
@@ -588,16 +635,21 @@ void ExMiniClusters::VisualMiniClusters(const char* dataset){
   hsquare_2d->SetAxisRange(mean_x-6*rms_x,mean_x+6*rms_x,"x");
   hsquare_2d->SetAxisRange(mean_y-6*rms_y,mean_y+6*rms_y,"y");
 
+  hsquare_2d_w_e->SetAxisRange(mean_x-6*rms_x,mean_x+6*rms_x,"x");
+  hsquare_2d_w_e->SetAxisRange(mean_y-6*rms_y,mean_y+6*rms_y,"y");
 
   TCanvas* c = new TCanvas(Form("c_visual_mini_clusters_%d",ct),"c",1600,800);
+  c->Divide(2,1);
   _delete_list.push_back(c);
-
+  
+  c->cd(1);
   hsquare_2d->Draw("colz");
 
   for(unsigned int i=0;i<_mini_cluster_list.size();i++){
-    double pk_x = _mini_cluster_list[i]->GetPkX();
-    double pk_y = _mini_cluster_list[i]->GetPkY();
+    double pk_x = _mini_cluster_list[i]->GetX();
+    double pk_y = _mini_cluster_list[i]->GetY();
     double r = _mini_cluster_list[i]->GetRadius();
+    double r_rms = _mini_cluster_list[i]->GetRMS();
     
     TLine* t_l = new TLine(pk_x,std::max(-20.,pk_y-r/2.),pk_x,std::min(pk_y+r/2.,20.));
     _delete_list.push_back(t_l);
@@ -616,10 +668,24 @@ void ExMiniClusters::VisualMiniClusters(const char* dataset){
     }
 
     _delete_list.push_back(elp);
+    
     elp->Draw("same");
+    
+    TEllipse* elp_rms = new TEllipse(pk_x,pk_y,r_rms,r_rms);
+    elp_rms->SetFillStyle(0);
+    elp_rms->SetLineStyle(9);
+    if(_mini_cluster_list[i]->IsSeedPk()){
+      elp_rms->SetLineColor(kRed);
+    }
+    _delete_list.push_back(elp_rms);
+
+    elp_rms->Draw("same");
+
   }
 
-
+  c->cd(2);
+  hsquare_2d_w_e->Draw("colz");
+  
   TFile* ofile = NULL;
   string ofname = string("Visual_MiniClusters_")+string(dataset)+string(".root");
   if(ct>0) ofile = new TFile(ofname.c_str(),"UPDATE");

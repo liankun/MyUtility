@@ -1,4 +1,5 @@
 #include "MiniClusterV1.h"
+#include <iostream>
 
 MiniClusterV1::MiniClusterV1(){
   Reset();
@@ -12,7 +13,14 @@ void MiniClusterV1::Reset(){
   _is_seed_pk = false;
   _rms_x = -9999;
   _rms_y = -9999;
+  _pk_x = -9999;
+  _pk_y = -9999;
+  _x = -9999;
+  _y = -9999;
+  _pk_ix = -9999;
+  _pk_iy = -9999;
   _radius = -9999;
+
   _sq_nxn_e.clear();
   memset(_layer_pk_e,0,sizeof(_layer_pk_e));
   memset(_layer_ex_e,0,sizeof(_layer_ex_e));
@@ -43,4 +51,15 @@ double MiniClusterV1::GetExE(){
   return sum;
 }
 
+void MiniClusterV1::Print(){
+  std::cout<<"ExE: "<<GetExE()
+           <<" PkE: "<<GetPkE()
+           <<" x: "<<GetX()
+	   <<" y: "<<GetY()
+	   <<" RMS X: "<<GetRMSX()
+	   <<" RMS Y: "<<GetRMSY()
+	   <<" RMS R: "<<GetRMS()
+	   <<" NSquare: "<<GetNSq()
+	   <<std::endl;
 
+}

@@ -9,7 +9,11 @@ class MiniClusterV1:MiniCluster
      MiniClusterV1();
      virtual ~MiniClusterV1();
 
-     double GetRMS() {return sqrt(_rms_x*_rms_x+_rms_y*_rms_y);}
+     double GetRMS(){
+       double rms = sqrt(_rms_x*_rms_x+_rms_y*_rms_y);
+       if(_rms_x*_rms_x+_rms_y*_rms_y<=0) rms=0;
+       return rms;
+     }
      double GetRMSX() {return _rms_x;}
      double GetRMSY() {return _rms_y;}
      double GetRadius() {return _radius;}
@@ -30,7 +34,11 @@ class MiniClusterV1:MiniCluster
 
      double GetPkX() {return _pk_x;}
      double GetPkY() {return _pk_y;}
-     
+
+     int GetPkGridX() {return _pk_ix;}
+     int GetPkGridY() {return _pk_iy;}
+
+
      bool IsSeedPk() {return _is_seed_pk;}
 
      void SetRMSX(double value) {_rms_x = value;}
@@ -43,13 +51,18 @@ class MiniClusterV1:MiniCluster
      void SetY(double val) {_y = val;}
      void SetPkX(double val) {_pk_x = val;}
      void SetPkY(double val) {_pk_y = val;}
-     
+
+     void SetPkGridX(int val) {_pk_ix = val;}
+     void SetPkGridY(int val) {_pk_iy = val;}
+
+
      void SetIsSeedPk(bool val) {_is_seed_pk = val;}
 
      void InsertSq(Square* sq ){_sq_list.push_back(sq);}
      void InsertSqENxN(double val) {_sq_nxn_e.push_back(val);}
 
      virtual void Reset();
+     void Print();
 
 
   private:
@@ -57,6 +70,8 @@ class MiniClusterV1:MiniCluster
     double _rms_y;
     double _pk_x;//pk may not exist
     double _pk_y;//
+    int _pk_ix; //grid pk ix
+    int _pk_iy; //grid pk iy
     double _x;//mean value
     double _y;
     double _radius;

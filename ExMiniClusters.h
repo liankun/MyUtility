@@ -47,6 +47,8 @@ class Square{
 
     double GetLayerE(unsigned int i) {if(i<8) return _layer_e[i];return 0;}
 
+    void Print();
+
     void SetX(double val) {_x = val;}
     void SetY(double val) {_y = val;}
     void SetGridX(int val) {_ix = val;}
@@ -93,7 +95,11 @@ class MiniCluster
     //return position of the Peak X
     virtual double GetPkX() {std::cout<<WHERE<<" GetPkX "<<std::endl;return -9999;}
     virtual double GetPkY() {std::cout<<WHERE<<" GetPkY "<<std::endl;return -9999;}
-    
+
+    virtual int GetPkGridX() {std::cout<<WHERE<<" GetPkGridX "<<std::endl;return -9999;}
+    virtual int GetPkGridY() {std::cout<<WHERE<<" GetPkGridY "<<std::endl;return -9999;}
+
+
     virtual double GetX() {std::cout<<WHERE<<" GetX "<<std::endl;return -9999;}
     virtual double GetY() {std::cout<<WHERE<<" GetY "<<std::endl;return -9999;}
 
@@ -104,6 +110,8 @@ class MiniCluster
     virtual Square* GetSq(unsigned int) {std::cout<<WHERE<<" GetSq   "<<std::endl;return NULL;}
 
     virtual void Reset(){std::cout<<WHERE<<" Reset    "<<std::endl;}
+
+    virtual void Print() {std::cout<<WHERE<<" Print     "<<std::endl;}
 
   private:
     /*this is a base class*/
@@ -132,6 +140,7 @@ class ExMiniClusters{
      
      void SetThresholdRMS(double val) {_th_rms = val;}
      void SetThresholdRMSAsy(double val) {_th_rms_asy = val;}
+     void SetThresholdPKMeanDST(double val) {_th_pk_mean_dist = val;}
      void SetMaxIterate(int n) {_max_iterate = n;}
 
      void SetSqCuts(bool val) {_sq_cuts = val;}
@@ -159,6 +168,10 @@ class ExMiniClusters{
      //the idea case is 0 when rms_x ~ rms_y
      //the default value will be 0.5 , when rms_x/rms_y~3
      double _th_rms_asy;
+     
+     //the distance between pk square and mean x y of cluster
+     //we use the rms as a reference
+     double _th_pk_mean_dist;
      int _max_iterate;
      
      void print_square_2d(std::vector<Square*> sq_list,ExShower* ex_shower);
