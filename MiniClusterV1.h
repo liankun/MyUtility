@@ -64,6 +64,8 @@ class MiniClusterV1:MiniCluster
      virtual void Reset();
      void Print();
 
+     virtual MiniCluster* Clone();
+
 
   private:
     double _rms_x;

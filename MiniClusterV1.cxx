@@ -63,3 +63,31 @@ void MiniClusterV1::Print(){
 	   <<std::endl;
 
 }
+
+MiniCluster* MiniClusterV1::Clone(){
+  MiniClusterV1* mclus = new MiniClusterV1();
+  mclus->SetRMSX(_rms_x);
+  mclus->SetRMSY(_rms_y);
+  mclus->SetPkX(_pk_x);
+  mclus->SetPkY(_pk_y);
+  mclus->SetPkGridX(_pk_ix);
+  mclus->SetPkGridY(_pk_iy);
+  mclus->SetX(_x);
+  mclus->SetY(_y);
+  mclus->SetRadius(_radius);
+  mclus->SetIsSeedPk(_is_seed_pk);
+  for(int i=0;i<8;i++){
+    mclus->SetLayerE(i,_layer_ex_e[i]);
+    mclus->SetLayerPkE(i,_layer_pk_e[i]);
+  }
+  
+  for(unsigned int i=0;i<_sq_nxn_e.size();i++){
+    mclus->InsertSqENxN(_sq_nxn_e[i]);
+  }
+
+  for(unsigned int i=0;i<_sq_list.size();i++){
+    mclus->InsertSq(_sq_list[i]->Clone());
+  }
+  
+  return (MiniCluster*)mclus;
+}

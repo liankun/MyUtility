@@ -55,7 +55,7 @@ class Square{
     void SetGridY(int val) {_iy = val;}
     void SetLayerE(unsigned int i,double val){if(i<8) _layer_e[i] = val;}
 
-
+    Square* Clone();
 };
 
 
@@ -112,6 +112,7 @@ class MiniCluster
     virtual void Reset(){std::cout<<WHERE<<" Reset    "<<std::endl;}
 
     virtual void Print() {std::cout<<WHERE<<" Print     "<<std::endl;}
+    virtual MiniCluster* Clone() {std::cout<<WHERE<<" Clone     "<<std::endl;return NULL;}
 
   private:
     /*this is a base class*/
@@ -146,7 +147,7 @@ class ExMiniClusters{
      void SetSqCuts(bool val) {_sq_cuts = val;}
 
 
-     void VisualMiniClusters(const char* data_set="");
+     void VisualMiniClusters(ExShower* ex_shower,const char* data_set="");
 
   private:
      std::vector<MiniCluster*> _mini_cluster_list;

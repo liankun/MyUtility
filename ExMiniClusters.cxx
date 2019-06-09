@@ -27,6 +27,19 @@ void Square::Print(){
       <<endl;
 }
 
+Square* Square::Clone(){
+  Square* sq = new Square();
+  sq->SetX(_x);
+  sq->SetY(_y);
+  sq->SetGridX(_ix);
+  sq->SetGridY(_iy);
+  for(int i=0;i<8;i++){
+    sq->SetLayerE(i,_layer_e[i]);
+  }
+
+  return sq;
+}
+
 ExMiniClusters::ExMiniClusters(){
   _debug = false;
   _th_rms = 2.2;
@@ -591,13 +604,27 @@ void ExMiniClusters::print_square_2d(vector<Square*> sq_list,ExShower* ex_shower
   ct++;
 }
 
-void ExMiniClusters::VisualMiniClusters(const char* dataset){
+void ExMiniClusters::VisualMiniClusters(ExShower* ex_shower,const char* dataset){
   if(_mini_cluster_list.size()<=0) return;
   static int ct = 0;
 
   vector<TObject*> _delete_list;
 
-  TH2D* hsquare_2d = new TH2D(Form("hsquare_2d_%d",ct),"Square 2D",214,-20,20,214,-20,20);
+  double reco_e = -9999;
+  double mpc_e3x3 = -9999;
+  double mpcex_e = -9999;
+  double pi0_mass = -9999;
+  if(ex_shower){
+    reco_e= ex_shower->GetTotalE();
+    mpc_e3x3 = ex_shower->GetMpcE3x3();
+    mpcex_e = ex_shower->GetCorMpcexE();
+    pi0_mass = ex_shower->GetPi0Mass();
+  }
+
+  TH2D* hsquare_2d = new TH2D(Form("hsquare_2d_%d",ct),
+                             Form("Reco E %.3f MpcE3x3: %.3f MpcExE: %.3f Pi0 Mass:%.3f",
+			         reco_e,mpc_e3x3,mpcex_e,pi0_mass),
+			     214,-20,20,214,-20,20);
   hsquare_2d->GetXaxis()->SetTitle("X/cm");
   hsquare_2d->GetYaxis()->SetTitle("Y/cm");
   
