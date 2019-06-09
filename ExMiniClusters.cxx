@@ -343,6 +343,7 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
       
       
       MiniClusterV1* mini_cluster = new MiniClusterV1();
+      mini_cluster->SetShowerE(ex_shower->GetTotalE());
       _mini_cluster_list.push_back((MiniCluster*)mini_cluster);
       
       if(i_is_pk==0) mini_cluster->SetIsSeedPk(true);
