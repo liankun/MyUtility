@@ -92,6 +92,9 @@ class MiniCluster
     
     //get the total shower energy of which the minicluster contains
     virtual double GetShowerE() {std::cout<<WHERE<<" GetShowerE "<<std::endl;return -9999;}
+    //vertex
+    virtual double GetVertex() {std::cout<<WHERE<<" GetVertex "<<std::endl;return -9999;}
+    
     //get Layer Peak E
     virtual double GetLayerPkE(unsigned int layer) {std::cout<<WHERE<<" GetLayerPkE "<<std::endl;return -9999;}
     virtual double GetLayerE(unsigned int layer) {std::cout<<WHERE<<" GetLayerE "<<std::endl;return -9999;}
