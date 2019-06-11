@@ -345,6 +345,12 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
       MiniClusterV1* mini_cluster = new MiniClusterV1();
       mini_cluster->SetShowerE(ex_shower->GetTotalE());
       mini_cluster->SetVertex(ex_shower->GetVertex());
+      double zdist = 205 - ex_shower->GetVertex();
+      if(ex_shower->GetArm()==0) zdist = -205 - ex_shower->GetVertex();
+
+      mini_cluster->SetShowerX(ex_shower->GetHsx()*zdist);
+      mini_cluster->SetShowerY(ex_shower->GetHsy()*zdist);
+      
       _mini_cluster_list.push_back((MiniCluster*)mini_cluster);
       
       if(i_is_pk==0) mini_cluster->SetIsSeedPk(true);

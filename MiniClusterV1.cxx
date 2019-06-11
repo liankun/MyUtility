@@ -78,6 +78,9 @@ MiniCluster* MiniClusterV1::Clone(){
   mclus->SetIsSeedPk(_is_seed_pk);
   mclus->SetShowerE(_shower_e);
   mclus->SetVertex(_vertex);
+  mclus->SetShowerX(_shower_x);
+  mclus->SetShowerY(_shower_y);
+
   for(int i=0;i<8;i++){
     mclus->SetLayerE(i,_layer_ex_e[i]);
     mclus->SetLayerPkE(i,_layer_pk_e[i]);
