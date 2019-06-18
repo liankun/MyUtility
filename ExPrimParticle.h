@@ -1,6 +1,7 @@
 #ifndef __EXPRIMPARTICLE_H__
 #define __EXPRIMPARTICLE_H__
 
+#include <TObject.h>
 #include <vector>
 #include "ExSimEvent.h"
 
@@ -36,6 +37,74 @@ class PrimaryParticle : public TrueParticle
 
 };
 
+//create primary pi0 (include the decayed photons)
+
+class DecayParticle : public TObject{
+  private:
+    int _track_id;
+    int _parent_track_id;
+    int _id;
+    int _parent_id;
+    float _r_vtx;
+    float _phi_vtx;
+    float _theta_vtx;
+    float _px;
+    float _py;
+    float _pz;
+    float _vtx;
+  public:
+    DecayParticle();
+    virtual ~DecayParticle(){}
+    
+    int GetTrackID(){return _track_id;}
+    int GetParentTrackID(){ return _parent_track_id;}
+    int GetID() {return _id;}
+    int GetParentID(){return _parent_id;}
+    float GetRVtx(){return _r_vtx;}
+    float GetThetaVtx(){return _theta_vtx;}
+    float GetPhiVtx(){return _phi_vtx;}
+    float GetPx() {return _px;}
+    float GetPy() {return _py;}
+    float GetPz() {return _pz;}
+    float GetVertex() {return _vtx;}
+   
+    
+    void SetTrackID(int val){_track_id = val;}
+    void SetParentTrackID(int val){ _parent_track_id = val;}
+    void SetID(int val) {_id = val;}
+    void SetParentID(int val) {_parent_id = val;}
+    void SetRVtx(float val){_r_vtx = val;}
+    void SetThetaVtx(float val){_theta_vtx = val;}
+    void SetPhiVtx(float val){_phi_vtx = val;}
+    void SetPx(float val) {_px = val;}
+    void SetPy(float val) {_py = val;}
+    void SetPz(float val) {_pz = val;}
+    void SetVertex(float val) {_vtx = val;}
+
+  ClassDef(DecayParticle,1)
+
+};
+
+class PrimaryPi0 : public PrimaryParticle
+{
+  //add decaied photon
+  public:
+    PrimaryPi0();
+    PrimaryPi0(int id,int parent_id,float vertex,float px,float py,float pz);
+    virtual ~PrimaryPi0();
+    
+    unsigned int GetNDecayParticle() {return _dpart_list.size();}
+    DecayParticle* GetDecayParticle(unsigned int i) {if(i<_dpart_list.size()) return _dpart_list[i];return NULL;}
+  
+    void Insert(DecayParticle* dc_part) {_dpart_list.push_back(dc_part);}
+  
+  private:
+    std::vector<DecayParticle*> _dpart_list; 
+
+  ClassDef(PrimaryPi0,1)
+
+};
+
 class PrimPartList
 {
   private:
@@ -50,6 +119,9 @@ class PrimPartList
     
     //add all primary particle info
     void AddFromPrimary(PHCompositeNode*);
+    
+    //add primary from Fkin some value may be different
+    void AddFromFkin(PHCompositeNode*);
 
     PrimPartList();
     virtual ~PrimPartList();

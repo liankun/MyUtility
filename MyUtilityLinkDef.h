@@ -19,6 +19,8 @@
 #pragma link C++ class ExGeomToKey;
 #pragma link C++ class mMpcExMyEmbed;
 #pragma link C++ class PrimaryParticle;
+#pragma link C++ class PrimaryPi0;
+#pragma link C++ class DecayParticle;
 #pragma link C++ class PrimPartList;
 #pragma link C++ class ExEmbedEvent;
 #pragma link C++ class ExAcpt;

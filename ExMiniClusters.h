@@ -164,6 +164,7 @@ class ExMiniClusters{
      //make a cut on Square, these Square will not
      //used in miniCluster process
      std::vector<Square*> _delete_sq_list;
+
      //flag for sq cuts 
      bool _sq_cuts;
      

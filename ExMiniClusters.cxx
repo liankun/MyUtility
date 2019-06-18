@@ -44,7 +44,7 @@ ExMiniClusters::ExMiniClusters(){
   _debug = false;
   _th_rms = 2.2;
   _th_rms_asy = 0.5;
-  _th_pk_mean_dist = 0.5;
+  _th_pk_mean_dist = 1;
   _max_iterate = 100;
   _sq_cuts = false;
   _mini_cluster_list.clear();
@@ -57,7 +57,7 @@ ExMiniClusters::ExMiniClusters(ExShower* ex_shower){
   _debug = false;
   _th_rms = 2.2;
   _th_rms_asy = 0.5;
-  _th_pk_mean_dist = 0.5;
+  _th_pk_mean_dist = 1;
   _max_iterate = 100;
   _sq_cuts = false;
   ConstructMiniClusters(ex_shower);
@@ -69,7 +69,7 @@ ExMiniClusters::ExMiniClusters(TMpcExShower* shower,TMpcExHitContainer* hits){
   _debug = false;
   _th_rms = 2.2;
   _th_rms_asy = 0.5;
-  _th_pk_mean_dist = 0.5;
+  _th_pk_mean_dist = 1;
   _max_iterate = 100;
   _sq_cuts = false;
   ConstructMiniClusters(shower,hits);
@@ -481,10 +481,10 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 	  //pk distance to mean x and y
 	  double pk_m_dx = fabs(sq_x - tmp_mean_x);
 	  double pk_m_dy = fabs(sq_y - tmp_mean_y);
-	  //double pk_m_dr = sqrt(pow(pk_m_dx,2)+pow(pk_m_dy,2));
+	  double pk_m_dr = sqrt(pow(pk_m_dx,2)+pow(pk_m_dy,2));
 	  if(pk_m_dx>_th_pk_mean_dist*tmp_rms_x) break;
 	  if(pk_m_dy>_th_pk_mean_dist*tmp_rms_y) break;
-	  //if(pk_m_dr>_th_pk_mean_dist*tmp_rms_r) break;
+	  if(pk_m_dr>_th_pk_mean_dist*tmp_rms_r) break;
 
 	}
         niter++;
