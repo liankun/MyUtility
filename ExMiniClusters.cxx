@@ -121,6 +121,12 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
   const int nsquare = 214;
   double dspace = 40./nsquare;
   double space_min = -20;
+
+  const double ex_front_z[2] = {-203.66,203.66};
+  const double ex_layer_z[2][8] ={
+                                 {-203.982,-204.636,-205.29,-205.944,-206.598,-207.252,-207.906,-208.56},
+                                 {203.982,204.636,205.29,205.944,206.598,207.252,207.906,208.56}
+                                 };
 //  double space_max =  20;
 
   //make a square array
@@ -155,6 +161,10 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
     double y = ex_mapper->get_y(key);
     double q = hit->GetE();
 
+    //correction for hsx and hsy
+    double z = ex_mapper->get_z(key);
+    double vertex = ex_shower->GetVertex();
+
     //search overlap region
     //the ratio of the lenght /width is 8
     //we search following layer first and then
@@ -162,11 +172,14 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
     for(int s=0;s<2;s++){
       int t_layer = layer-2*s+1;
       if(t_layer>7 || t_layer<0) continue;
+      //record overlap position
       std::vector<double> pos_list;
       std::vector<double> q_list;
       std::set<int> used_set;
       double q_sum=0;
      
+      double cor_factor=(ex_layer_z[arm][t_layer]-vertex)/(z-vertex);
+      
       for(int t=0;t<8;t++){
         double t_x = x; 
 	double t_y = y+0.1876*t-0.65625;
@@ -175,11 +188,15 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 	  t_y = y;
 	}
 
-        int t_key = g2k->get_key(arm,t_layer,t_x,t_y);
+        //search the overlap region
+	int t_key = g2k->get_key(arm,t_layer,t_x*cor_factor,t_y*cor_factor);
 	if(t_key<0) continue;
 	if(!hit_array[t_key]) continue;
 	
+	//this is important, during the search for overlap region
+	//some key may appears again
 	if(used_set.find(t_key)!=used_set.end()) continue;
+	used_set.insert(t_key);
         ExHit* t_hit = hit_array[t_key];
 	double t_q = t_hit->GetE();
         t_x = ex_mapper->get_x(t_key);
@@ -187,11 +204,13 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 	double pos = t_y;
 	if(layer%2==1) pos = t_x;
 	else pos = t_y;
+	pos = pos/cor_factor;
 	pos_list.push_back(pos);
 	q_list.push_back(t_q);
 	q_sum += t_q;
       }
       
+      //isolated minipads
       if(q_sum<=0) continue;
 
       for(unsigned int k=0;k<pos_list.size();k++){
@@ -203,14 +222,21 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 	  t_sq_x = pos_list[k];
 	  t_sq_y = y;
 	}
-	
+        
+        //correction for first layer
+	t_sq_x = t_sq_x*(ex_front_z[arm]-vertex)/(z-vertex);
+	t_sq_y = t_sq_y*(ex_front_z[arm]-vertex)/(z-vertex);
+
 	int gix = (t_sq_x-space_min)/dspace;
 	int giy = (t_sq_y-space_min)/dspace;
 
 	if(sq_array[gix][giy]){
 	  Square* sq = sq_array[gix][giy];
-	  double cur_layer_e = sq->GetLayerE(t_layer);
-          sq->SetLayerE(t_layer,cur_layer_e+q*q_list[k]/q_sum);
+	  //change t_layer to layer, we are interested in current layer
+	  //not the adjacent layer
+	  double cur_layer_e = sq->GetLayerE(layer);
+	  //weighted the E by the adjacent minipads
+          sq->SetLayerE(layer,cur_layer_e+q*q_list[k]/q_sum);
 	}
 	else{
 	  Square* sq = new Square();
@@ -218,12 +244,12 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 	  sq->SetY(t_sq_y);
 	  sq->SetGridX(gix);
 	  sq->SetGridY(giy);
-	  sq->SetLayerE(t_layer,q*q_list[k]/q_sum);
+	  sq->SetLayerE(layer,q*q_list[k]/q_sum);
 	  sq_array[gix][giy] = sq;
 	  sq_list.push_back(sq);
 	}
       }
-      break;
+      break;//find adjacent layers
     }
   }
   

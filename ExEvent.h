@@ -97,6 +97,8 @@ public:
   float GetdPks() const {if(_patID > 0) return sqrt(pow(_x_pk[0]-_x_pk[1],2)+pow(_y_pk[0]-_y_pk[1],2));return -9999;}
   float GetPi0Mass() const {return _pi0_mass;}
   float GetVertex() const {return _vertex;}
+  //CorMpcexE is not just divide by sampling fraction
+  //it is a very complicated fitting
   float GetCorMpcexE() const {return _cor_mpcexE;}
   float GetRawMpcexE() const {return _raw_mpcexE;}
   float GetCorMpcE() const {return _cor_mpcE;}
