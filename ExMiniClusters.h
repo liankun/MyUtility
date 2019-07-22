@@ -83,10 +83,10 @@ class MiniCluster
     virtual double GetMpcE() {std::cout<<WHERE<<" GetMpcE "<<std::endl;return -9999;}
     
     //get closest Mpc Tower Energy for this miniCluster
-    virtual double GetMpcPkE() {std::cout<<WHERE<<" GetMpcPkE  "<<std::endl;return -9999;}
+    virtual double GetTowerE() {std::cout<<WHERE<<" GetTowerE  "<<std::endl;return -9999;}
     
     //get closest Mpc Tower Channel
-    virtual int GetMpcPkCh() {std::cout<<WHERE<<" GetMpcPkCh   "<<std::endl;return -9999;}
+    virtual int GetTowerCh() {std::cout<<WHERE<<" GetTowerCh   "<<std::endl;return -9999;}
     //we can combine MpcE and TotalE in future
     virtual double GetTotE() {std::cout<<WHERE<<" GetTotE "<<std::endl;return -9999;}
     

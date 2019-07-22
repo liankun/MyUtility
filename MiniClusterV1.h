@@ -24,6 +24,8 @@ class MiniClusterV1:MiniCluster
 
      double GetShowerX() {return _shower_x;}
      double GetShowerY() {return _shower_y;}
+     double GetTowerE() {return _tower_e;}
+     int GetTowerCh() {return _tower_ch;}
    
      unsigned int GetGridRange(){return _sq_nxn_e.size();}
      double GetSqENxN(unsigned int i) {if(i<_sq_nxn_e.size()) return _sq_nxn_e[i];return -9999;}
@@ -42,7 +44,6 @@ class MiniClusterV1:MiniCluster
 
      int GetPkGridX() {return _pk_ix;}
      int GetPkGridY() {return _pk_iy;}
-
 
      bool IsSeedPk() {return _is_seed_pk;}
 
@@ -63,7 +64,8 @@ class MiniClusterV1:MiniCluster
      void SetVertex(double val) {_vertex = val;}
      void SetShowerX(double val) {_shower_x = val;}
      void SetShowerY(double val) {_shower_y = val;}
-
+     void SetTowerE(double val) {_tower_e = val;}
+     void SetTowerCh(int val) {_tower_ch = val;}
 
      void SetIsSeedPk(bool val) {_is_seed_pk = val;}
 
@@ -95,6 +97,8 @@ class MiniClusterV1:MiniCluster
     double _vertex;
     double _shower_x;
     double _shower_y;
+    double _tower_e;
+    double _tower_ch;
     std::vector<Square*> _sq_list;
     std::vector<double> _sq_nxn_e;
 

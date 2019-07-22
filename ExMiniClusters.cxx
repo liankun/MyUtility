@@ -9,6 +9,7 @@
 #include <TCanvas.h>
 #include <Exogram.h>
 #include <MpcExMapper.h>
+#include <MpcMap.h>
 #include <algorithm>
 #include <TEllipse.h>
 #include <TLine.h>
@@ -139,6 +140,7 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 
   ExGeomToKey* g2k = ExGeomToKey::instance();
   MpcExMapper* ex_mapper = MpcExMapper::instance();
+  MpcMap* mpc_map = MpcMap::instance();
   
   //for fast look up
   ExHit* hit_array[49152];
@@ -533,6 +535,34 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
       mini_cluster->SetRMSX(rms_x);
       mini_cluster->SetRMSY(rms_y);
       mini_cluster->SetRadius(sqrt(pow((left+right)/2.,2)/2.+pow((up+down)/2.,2)/2.)*dspace+0.5*dspace);
+
+      double best_dr=9999;
+      int best_ch = -1;
+      double best_e = -9999;
+      int arm = ex_shower->GetArm();
+      double vertex = ex_shower->GetVertex();
+      for(int im=0;im<7;im++){
+	for(int in=0;in<7;in++){
+          int tower_ch = ex_shower->GetMpc7x7Ch(im,in);
+	  double tower_e = ex_shower->GetMpc7x7E(im,in);
+	  if(tower_ch<0) continue;
+	  double tower_x = mpc_map->getX(tower_ch);
+	  double tower_y = mpc_map->getY(tower_ch);
+	  double cor_factor = (220.9-vertex)/(203.203-vertex);
+	  if(arm==0) cor_factor = (-220.9-vertex)/(-203.203-vertex);
+
+	  double tmp_dx = tower_x-mean_x*cor_factor;
+	  double tmp_dy = tower_y-mean_y*cor_factor;
+	  double tmp_dr = sqrt(pow(tmp_dx,2)+pow(tmp_dy,2));
+	  if(fabs(tmp_dx)<1.2 && fabs(tmp_dy)<1.2 && tmp_dr<best_dr){
+	    best_dr = tmp_dr;
+	    best_ch = tower_ch;
+	    best_e = tower_e;
+	  }
+	}
+      }
+      mini_cluster->SetTowerCh(best_ch);
+      mini_cluster->SetTowerE(best_e);
     }//i
   }
 

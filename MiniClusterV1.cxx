@@ -20,6 +20,8 @@ void MiniClusterV1::Reset(){
   _pk_ix = -9999;
   _pk_iy = -9999;
   _radius = -9999;
+  _tower_e = -9999;
+  _tower_ch = -9999;
 
   _sq_nxn_e.clear();
   memset(_layer_pk_e,0,sizeof(_layer_pk_e));
