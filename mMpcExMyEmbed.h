@@ -87,10 +87,6 @@ class mMpcExMyEmbed : public SubsysReco {
   int disable_MPV_layer_adjust; 
 
   mMpcExApplyCalibrations::Mode calibMode;
-  
-  double MINIPAD_CORRECTION[49152];
-  double MINIPAD_SIGMA[49152];
-  double MINIPAD_MPV[49152];
 
 };
 

@@ -16,7 +16,6 @@
 #include "TMpcExGeaHit.h"
 #include "mMpcExApplyCalibrations.h"
 #include "math.h"
-#include <fstream>
 #include <algorithm>
 
 using namespace std;
@@ -61,26 +60,6 @@ mMpcExMyEmbed::mMpcExMyEmbed()
   calibMode = (mMpcExApplyCalibrations::Mode) myrc->get_IntFlag("MPCEXCALIBMODE",mMpcExApplyCalibrations::COMPLETE);  
   disable_MPV_layer_adjust = myrc->get_IntFlag("MPCEX_NO_LAYER_MPV_ADJUST",0x0); 
 
-  for(int j=0;j<49152;j++){
-    MINIPAD_CORRECTION[j] = -1;
-    MINIPAD_SIGMA[j] = -1;
-    MINIPAD_MPV[j] = -1;
-  }
-
-
-  ifstream in_txt4("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MyUtility/install/share/MyUtility/minipads_scale_smear_include_low_gain_db_v4.txt");   
-  if(in_txt4.is_open()){
-    int key;
-    double scale;
-    double smear;
-    while(in_txt4>>key>>scale>>smear){
-      MINIPAD_CORRECTION[key] = scale;
-//      MINIPAD_SIGMA[key] = sigma;
-//      MINIPAD_MPV[key] = mpv;
-    }
-  }
-  else std::cout<<"open pad_scale_factor_new_include_mpv.txt failed !"<<std::endl;
-  in_txt4.close();
 
 }
 
@@ -185,7 +164,7 @@ int mMpcExMyEmbed::EmbedMpcEx()
     exo_Em->Reset();
   }
   // Bg loop
-  for (int idx = 0; idx < nhit_Bg; idx++) {
+  for (int idx = 0; idx < nhit_Bg; idx++){
     unsigned short Bg_low = fMpcExRawHit_Bg->getladc(idx);
     unsigned short Bg_high =  fMpcExRawHit_Bg->gethadc(idx);
     unsigned int key = fMpcExRawHit_Bg->getOnlineKey(idx);
@@ -217,7 +196,8 @@ int mMpcExMyEmbed::EmbedMpcEx()
     TMpcExGeaHit *geahit = fMpcExGeaHitCont->getHit(ihit);
     unsigned int key = geahit->key();
     TMpcExCalib *Calib = fMpcExCalibCont->get(key);
-    double energy = geahit->e();
+    double energy = geahit->e()*fDice->Gaus(1.0,Calib->get_smear());
+
     int arm = mpcexmap->get_arm(key);
     int badh = Calib->high_dead_hot_status();
     int badl = Calib->low_dead_hot_status();
@@ -237,13 +217,15 @@ int mMpcExMyEmbed::EmbedMpcEx()
     double mip_sensor = Calib->get_mip_in_sensor();
     double mip_corr = Calib->get_minipad_mip_correction();
 
-    double mip = mip_sensor*mip_corr/Calib->get_mip_correction();
 
+    double mip = mip_sensor*mip_corr;
+    if(Calib->get_smear_scale()>0) mip /= Calib->get_smear_scale();
+    if(Calib->get_mip_correction()>0) mip /= Calib->get_mip_correction();
+
+
+    if ((calibMode!=mMpcExApplyCalibrations::COMPLETE_FIXED_MC_PERFECT)&&(calibMode!=mMpcExApplyCalibrations::COMPLETE_FIXED_MC)&&
+	(calibMode!=mMpcExApplyCalibrations::COMPLETE_FIXED_REALPED)) mip = mip/Calib->get_mip_correction();
     int layer = mpcexmap->get_layer(key);
-    
-    if(fabs(MINIPAD_CORRECTION[key])>0.001){
-      mip /= MINIPAD_CORRECTION[key];
-    }
 
     if (mip <= 0 && (calibMode!=mMpcExApplyCalibrations::COMPLETE_FIXED_MC_PERFECT)&&(calibMode!=mMpcExApplyCalibrations::COMPLETE_FIXED_MC)&&(calibMode!=mMpcExApplyCalibrations::COMPLETE_FIXED_REALPED)) {
       //bad calibration should ignore for complete calibration
