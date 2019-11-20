@@ -155,6 +155,8 @@ class ExMiniClusters{
      void SetMaxIterate(int n) {_max_iterate = n;}
 
      void SetSqCuts(bool val) {_sq_cuts = val;}
+     //in keV
+     void SetMinipadThresholdE(double val) {_th_mpad_e=val;}
 
 
      void VisualMiniClusters(ExShower* ex_shower,const char* data_set="");
@@ -184,6 +186,9 @@ class ExMiniClusters{
      //the distance between pk square and mean x y of cluster
      //we use the rms as a reference
      double _th_pk_mean_dist;
+
+     double _th_mpad_e;
+
      int _max_iterate;
      
      void print_square_2d(std::vector<Square*> sq_list,ExShower* ex_shower);

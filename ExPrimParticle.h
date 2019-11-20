@@ -121,6 +121,8 @@ class PrimPartList
     void AddFromPrimary(PHCompositeNode*);
     
     //add primary from Fkin some value may be different
+    //fill all primary particles
+    //and fill the particle decay from pi0s and 
     void AddFromFkin(PHCompositeNode*);
 
     PrimPartList();

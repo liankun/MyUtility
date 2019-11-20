@@ -32,5 +32,6 @@
 #pragma link C++ class MiniCluster;
 #pragma lkin C++ class MiniClusterV1;
 #pragma link C++ class ExMiniClusters;
+#pragma link C++ class JohnCalibrateShowerEnergy;
 
 #endif /* __CINT__ */

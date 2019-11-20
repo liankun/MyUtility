@@ -46,6 +46,7 @@ ExMiniClusters::ExMiniClusters(){
   _th_rms = 2.2;
   _th_rms_asy = 0.5;
   _th_pk_mean_dist = 1;
+  _th_mpad_e = 0;
   _max_iterate = 100;
   _sq_cuts = false;
   _mini_cluster_list.clear();
@@ -59,6 +60,7 @@ ExMiniClusters::ExMiniClusters(ExShower* ex_shower){
   _th_rms = 2.2;
   _th_rms_asy = 0.5;
   _th_pk_mean_dist = 1;
+  _th_mpad_e = 0;
   _max_iterate = 100;
   _sq_cuts = false;
   ConstructMiniClusters(ex_shower);
@@ -71,6 +73,7 @@ ExMiniClusters::ExMiniClusters(TMpcExShower* shower,TMpcExHitContainer* hits){
   _th_rms = 2.2;
   _th_rms_asy = 0.5;
   _th_pk_mean_dist = 1;
+  _th_mpad_e = 0;
   _max_iterate = 100;
   _sq_cuts = false;
   ConstructMiniClusters(shower,hits);
@@ -149,6 +152,7 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
 
   for(int i=0;i<ex_shower->GetNhits();i++){
     ExHit* hit = ex_shower->GetExHit(i);
+    if(hit->GetE()<_th_mpad_e) continue;
     int key = hit->GetKey();
     hit_array[key] = hit;
   }
@@ -156,6 +160,7 @@ void ExMiniClusters::ConstructMiniClusters(ExShower* ex_shower){
   //fill each square
   for(int i=0;i<ex_shower->GetNhits();i++){
     ExHit* hit = ex_shower->GetExHit(i);
+    if(hit->GetE()<_th_mpad_e) continue;
     int key = hit->GetKey();
     int layer = ex_mapper->get_layer(key);
     int arm = ex_mapper->get_arm(key);
@@ -810,3 +815,4 @@ bool ExMiniClusters::IsGoodSq(Square* sq){
   }
   return true;
 }
+
