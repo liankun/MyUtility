@@ -48,7 +48,10 @@ include_HEADERS = \
   ExHitList.h \
   ExMiniClusters.h \
   MiniClusterV1.h \
-  JohnCalibrateShowerEnergy.h
+  JohnCalibrateShowerEnergy.h \
+  MTensor.h \
+  MLayer.h \
+  MConv2D.h
  
 libMyUtility_la_SOURCES = \
   ExEvent.cxx \
@@ -73,7 +76,10 @@ libMyUtility_la_SOURCES = \
   mMpcExShowerV2.C \
   ExMiniClusters.cxx \
   MiniClusterV1.cxx \
-  JohnCalibrateShowerEnergy.cxx
+  JohnCalibrateShowerEnergy.cxx \
+  MTensor.cxx \
+  MLayer.cxx \
+  MConv2D.cxx
 
 libMyUtility_la_LIBADD = \
   -L$(libdir) \
@@ -115,6 +121,9 @@ MyUtility_Dict.C: \
   ExMiniClusters.h \
   MiniClusterV1.h \
   JohnCalibrateShowerEnergy.h \
+  MTensor.h \
+  MLayer.h \
+  MConv2D.h \
   MyUtilityLinkDef.h 
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) $^
 
