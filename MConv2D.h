@@ -23,14 +23,20 @@ class MConv2D:MLayer{
 
     MTensor* GetOutTensor(const MShape &shape,bool set_sparse=false);
   public:
+    //if for_test is true
+    //the fill value will be valid
+    //otherwise, the fill valid will
+    //be invalid
     MConv2D(const MShape& shape,
-            unsigned int nft,unsigned int stride = 1,bool same_pad=true);
-    MConv2D(int mode=0);
+            unsigned int nft,
+	    unsigned int stride = 1,
+	    bool same_pad=false,
+	    bool for_test = false,
+	    float fill_value=0);
+    
     virtual ~MConv2D();
     MTensor* GetOutPut(MTensor*,bool set_sparse=false);
     void Print();
-
-
 
 };
 

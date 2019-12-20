@@ -1,15 +1,16 @@
 #include <vector>
 
-void TestMConv2D(){
+void TestMConv2DPy(){
   gSystem->Load("libMyUtility.so");
 
   ifstream in_txt("test_matrix.txt");
   string line;
-  float mat[512][512];
+  const int in_size = 512;
+  float mat[in_size][in_size];
   int n_lines = 0;
   while(getline(in_txt,line)){
     stringstream linestream(line);
-    for(int s=0;s<512;s++){
+    for(unsigned int s=0;s<in_size;s++){
       linestream>>mat[n_lines][s];
     }
     n_lines++;
@@ -32,8 +33,21 @@ void TestMConv2D(){
     }
   }
   
-  unsigned int stride = 1;
-  MConv2D* cov2d = new MConv2D(stride,1.);
+  //the last dimension is the channel
+  //create a shape of (2,3,1)
+  MShape cov_shape = MShape(3,3);
+  cov_shape[0]=2;
+  cov_shape[2]=1;
+
+/*
+  MConv2D::MConv2D(const MShape& shape,
+                 unsigned int nft,
+                 unsigned int stride,
+                 bool same_pad,
+                 bool for_test,
+                 float fill_value)
+*/
+  MConv2D* cov2d = new MConv2D(cov_shape,1,1,false,true,1);
   MTensor* out_tensor = cov2d->GetOutPut(tensor);
   if(!out_tensor) return;
 //  if(out_tensor) out_tensor->Print1DTensor();
@@ -41,29 +55,19 @@ void TestMConv2D(){
   const MShape out_shape = out_tensor->GetShape();
   cout<<out_shape[0]<<" "<<out_shape[1]<<endl;
 
-  
   //calculate by another method
 
-  float out_mat[out_shape[0]][out_shape[1]]={0};
-
-  float ft[2][2]={
-                  {1,1},
-		  {1,1}
-                 };
-  for(unsigned int i=0;i<nsize-2+1;i+=stride){
-    for(unsigned int j=0;j<nsize-2+1;j+=stride){
-      float val=0;
-      unsigned int row = i/stride;
-      unsigned int col = j/stride;
-  //    cout<<"row: "<<row<<" col: "<<col<<endl;
-      for(unsigned int m=0;m<2;m++){
-	for(unsigned int n=0;n<2;n++){
-//	  cout<<mat[i+m][j+n]<<"  "<<ft[m][n]<<endl;
-          val+=mat[i+m][j+n]*ft[m][n];
-	}
-      }
-      out_mat[row][col] = val;
+  ifstream in_txt1("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MpcEx_CNN/Test/MConv2D/out_maxtrix.txt");
+  
+  const int out_size = 510;
+  float out_mat[511][out_size];
+  n_lines = 0;
+  while(getline(in_txt1,line)){
+    stringstream linestream(line);
+    for(unsigned int s=0;s<out_size;s++){
+      linestream>>out_mat[n_lines][s];
     }
+    n_lines++;
   }
 
   //make comparision
@@ -78,5 +82,4 @@ void TestMConv2D(){
       cout<<val0<<"  "<<val1<<endl;
     }
   }
-  cout<<"finish test"<<endl;
 }

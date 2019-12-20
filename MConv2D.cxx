@@ -3,7 +3,12 @@
 #include <iostream>
 #include <stdlib.h>
 
-MConv2D::MConv2D(const MShape& shape,unsigned int nft,unsigned int stride,bool same_pad){
+MConv2D::MConv2D(const MShape& shape,
+                 unsigned int nft,
+		 unsigned int stride,
+		 bool same_pad,
+		 bool for_test,
+		 float fill_value){
   MLayer();
   _shape = shape;
   _nft = nft;
@@ -16,7 +21,9 @@ MConv2D::MConv2D(const MShape& shape,unsigned int nft,unsigned int stride,bool s
   }
 
   for(unsigned int i=0;i<_nft;i++){
-    _filters.push_back(new MTensor(shape));
+    MTensor* t_ft = new MTensor(shape);
+    if(for_test) t_ft->SetValue(fill_value);
+    _filters.push_back(t_ft);
   }
 }
 
@@ -105,12 +112,12 @@ MTensor* MConv2D::GetOutPut(MTensor* tensor,bool set_sparse){
   for(unsigned int i=0;i<out_volume;i++){
     //get corresponding index
     MIndex out_indx = out_tensor->GetIndexFrom1D(i);
-    std::cout<<"Get index out of 1D for out tensor"<<std::endl;
+//    std::cout<<"Get index out of 1D for out tensor"<<std::endl;
     unsigned int i_ft = out_indx[out_tensor->GetNDim()-1];
     //access the corresponding filter
     MTensor* t_filter = _filters[i_ft];
     unsigned int ft_volume = t_filter->GetVolume();
-    std::cout<<"volume of filter: "<<ft_volume<<std::endl;
+//    std::cout<<"volume of filter: "<<ft_volume<<std::endl;
     //mat multiplication
     //the filter is the multidemension
     //we can not use the multiple for loop
@@ -122,80 +129,27 @@ MTensor* MConv2D::GetOutPut(MTensor* tensor,bool set_sparse){
     //the last index is not right,shoudl be 0
     ref_index[ref_index.size()-1]=0; 
 
-    std::cout<<"ref index: "<<std::endl;
-    PrintIndex(ref_index);
+//    std::cout<<"ref index: "<<std::endl;
+//    PrintIndex(ref_index);
     
 
     //the result of the matrix multiplication
     float val = 0;
     for(unsigned int j=0;j<ft_volume;j++){
       MIndex index0 = t_filter->GetIndexFrom1D(j);
-      std::cout<<"Get index out of 1D for filter !"<<std::endl;
+//      std::cout<<"Get index out of 1D for filter !"<<std::endl;
       //get the corresponding element for input tensor
       MIndex index1 = AddIndex(index0,ref_index);
-      std::cout<<"Get the index for input tensor !"<<std::endl;
+//      std::cout<<"Get the index for input tensor !"<<std::endl;
       float val0 = t_filter->GetValue(index0);
-      std::cout<<"Get value of filter "<<val0<<std::endl;
+//      std::cout<<"Get value of filter "<<val0<<std::endl;
       float val1 = tensor->GetValue(index1);;
-      std::cout<<"Get Value of input tensor "<<val1<<std::endl;
+//      std::cout<<"Get Value of input tensor "<<val1<<std::endl;
       val+=val0*val1;
     }
     (*out_tensor)[out_indx] = val;
   }
 
   return out_tensor;
-}
-
-//for test only
-MConv2D::MConv2D(int mode){
-  //for test, will create a 2x2x1 filter
-  //there will be different mode
-  if(mode==0){
-    //a 2x2x1 filter
-    //all value is zero
-    MShape ft_shape(3,2);
-    ft_shape[2]=1;
-    _filters.push_back(new MTensor(ft_shape));
-    _stride=1;
-    _nft=1;
-    _shape = ft_shape;
-  }
-
-  if(mode==1){
-    //a 2x2x1 filter
-    //all value is zero
-    //stride is 2
-    MShape ft_shape(3,2);
-    ft_shape[2]=1;
-    _filters.push_back(new MTensor(ft_shape));
-    _stride=2;
-    _nft=1;
-    _shape = ft_shape;
-  }
-
-  if(mode==2){
-    //a 2x2x1 filter
-    //all value is 1
-    MShape ft_shape(3,2);
-    ft_shape[2]=1;
-    _filters.push_back(new MTensor(ft_shape));
-    _filters[0]->SetValue(1.);
-    _stride=1;
-    _nft=1;
-    _shape = ft_shape;
-  }
-
-  if(mode==3){
-    //a 2x2x1 filter
-    //all value is 1
-    //stride is 2
-    MShape ft_shape(3,2);
-    ft_shape[2]=1;
-    _filters.push_back(new MTensor(ft_shape));
-    _filters[0]->SetValue(1.);
-    _stride=2;
-    _nft=1;
-    _shape = ft_shape;
-  }
 }
 
