@@ -191,8 +191,11 @@ MIndex MTensor::GetIndexFrom1D(unsigned int idx){
 void MTensor::SetValue(float val){
   //for this time , only for none 
   //sparse matrix 
-  for(unsigned int i=0;i<_nsize;i++){
-    _tensor[i]=val;	  
+  for(unsigned int i=0;i<_volume;i++){
+    if(_is_sparse){
+      _sparse_map[i]=val;
+    }
+    else _tensor[i]=val;	  
   }
 }
 

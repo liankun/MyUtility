@@ -27,10 +27,12 @@ class MConv2D:MLayer{
     //the fill value will be valid
     //otherwise, the fill valid will
     //be invalid
+    //the sparse is set for the filter
     MConv2D(const MShape& shape,
             unsigned int nft,
 	    unsigned int stride = 1,
 	    bool same_pad=false,
+	    bool set_sparse=false,
 	    bool for_test = false,
 	    float fill_value=0);
     

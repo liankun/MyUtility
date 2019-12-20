@@ -33,6 +33,7 @@ void TestMConv2D(){
   }
   
   unsigned int stride = 1;
+
   MConv2D* cov2d = new MConv2D(stride,1.);
   MTensor* out_tensor = cov2d->GetOutPut(tensor);
   if(!out_tensor) return;

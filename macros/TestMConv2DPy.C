@@ -19,8 +19,9 @@ void TestMConv2DPy(){
   unsigned int nsize=512;
   MShape shape(3,nsize);
   shape[2]=1;
- 
-  MTensor* tensor = new MTensor(shape);
+  
+  //try sparse matrix
+  MTensor* tensor = new MTensor(shape,true);
   //two dim 
   MIndex index(3,0);
   index[2]=0;
@@ -44,10 +45,11 @@ void TestMConv2DPy(){
                  unsigned int nft,
                  unsigned int stride,
                  bool same_pad,
+		 bool set_sparse,
                  bool for_test,
                  float fill_value)
 */
-  MConv2D* cov2d = new MConv2D(cov_shape,1,1,false,true,1);
+  MConv2D* cov2d = new MConv2D(cov_shape,1,1,false,true,true,1);
   MTensor* out_tensor = cov2d->GetOutPut(tensor);
   if(!out_tensor) return;
 //  if(out_tensor) out_tensor->Print1DTensor();

@@ -7,6 +7,7 @@ MConv2D::MConv2D(const MShape& shape,
                  unsigned int nft,
 		 unsigned int stride,
 		 bool same_pad,
+		 bool set_sparse,
 		 bool for_test,
 		 float fill_value){
   MLayer();
@@ -21,7 +22,7 @@ MConv2D::MConv2D(const MShape& shape,
   }
 
   for(unsigned int i=0;i<_nft;i++){
-    MTensor* t_ft = new MTensor(shape);
+    MTensor* t_ft = new MTensor(shape,set_sparse);
     if(for_test) t_ft->SetValue(fill_value);
     _filters.push_back(t_ft);
   }
