@@ -51,7 +51,7 @@ include_HEADERS = \
   JohnCalibrateShowerEnergy.h \
   MTensor.h \
   MLayer.h \
-  MConv2D.h
+  MConvND.h
  
 libMyUtility_la_SOURCES = \
   ExEvent.cxx \
@@ -79,7 +79,7 @@ libMyUtility_la_SOURCES = \
   JohnCalibrateShowerEnergy.cxx \
   MTensor.cxx \
   MLayer.cxx \
-  MConv2D.cxx
+  MConvND.cxx
 
 libMyUtility_la_LIBADD = \
   -L$(libdir) \
@@ -123,7 +123,7 @@ MyUtility_Dict.C: \
   JohnCalibrateShowerEnergy.h \
   MTensor.h \
   MLayer.h \
-  MConv2D.h \
+  MConvND.h \
   MyUtilityLinkDef.h 
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) $^
 

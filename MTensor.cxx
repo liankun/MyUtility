@@ -189,8 +189,7 @@ MIndex MTensor::GetIndexFrom1D(unsigned int idx){
 }
 
 void MTensor::SetValue(float val){
-  //for this time , only for none 
-  //sparse matrix 
+  //set same value for each element
   for(unsigned int i=0;i<_volume;i++){
     if(_is_sparse){
       _sparse_map[i]=val;
@@ -199,3 +198,12 @@ void MTensor::SetValue(float val){
   }
 }
 
+void MTensor::SetValue(){
+  //set different values
+  for(unsigned int i=0;i<_volume;i++){
+    if(_is_sparse){
+      _sparse_map[i]=i;
+    }
+    else _tensor[i]=i;
+  }
+}

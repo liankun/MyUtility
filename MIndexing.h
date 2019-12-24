@@ -30,6 +30,13 @@ inline MIndex AddIndex(const MIndex& index0,const MIndex& index1){
   return add_index;
 }
 
+inline bool CompareIndex(const MIndex& index0,const MIndex& index1){
+  for(unsigned int i=0;i<index0.size();i++){
+    if(index0[i]<index1[i]) return false;
+  }
+  return true;
+}
+
 inline MIndex MultiplyIndex(const MIndex& index,const unsigned int val){
   //each element of the index will be multiply by a same number
   //val

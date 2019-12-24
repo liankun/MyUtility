@@ -1,9 +1,10 @@
-#include "MConv2D.h"
+#include "MConvND.h"
 #include <string>
 #include <iostream>
 #include <stdlib.h>
+#include <math.h>
 
-MConv2D::MConv2D(const MShape& shape,
+MConvND::MConvND(const MShape& shape,
                  unsigned int nft,
 		 unsigned int stride,
 		 bool same_pad,
@@ -17,19 +18,30 @@ MConv2D::MConv2D(const MShape& shape,
   _stride = stride;
 
   if(_stride==0){
-    std::cout<<"MConv2D:: "<<WHERE<<" invalid stride will set to 1!"<<std::endl;
+    std::cout<<"MConvND:: "<<WHERE<<" invalid stride will set to 1!"<<std::endl;
     _stride=1;
+  }
+
+  if(_shape.size()<=1){
+    std::cout<<"the dimension is less than one !!!, may cause issue !"<<std::endl;
   }
 
   for(unsigned int i=0;i<_nft;i++){
     MTensor* t_ft = new MTensor(shape,set_sparse);
-    if(for_test) t_ft->SetValue(fill_value);
+    float b=0;
+    if(for_test){
+      if(fill_value>-9999) t_ft->SetValue(fill_value);
+      else t_ft->SetValue();
+      b=1;
+    } 
     _filters.push_back(t_ft);
+    _bias.push_back(b);
   }
+
 }
 
 
-MConv2D::~MConv2D(){
+MConvND::~MConvND(){
   for(unsigned int i=0;i<_filters.size();i++){
     if(_filters[i]) delete _filters[i];
     _filters[i] = 0;
@@ -37,7 +49,7 @@ MConv2D::~MConv2D(){
   _filters.clear();
 }
 
-void MConv2D::Print(){
+void MConvND::Print(){
   std::cout<<"Convolutional 2D Layer"<<std::endl;
   std::cout<<"Shape: ";
   for(unsigned int i=0;i<_shape.size();i++){
@@ -47,19 +59,27 @@ void MConv2D::Print(){
   std::cout<<"Number of filters: "<<_nft<<std::endl;
 }
 
-MTensor* MConv2D::GetOutTensor(const MShape& shape,bool set_sparse){
+MTensor* MConvND::GetOutTensor(const MShape& shape,bool set_sparse){
    //they should have the same dimension
   if(shape.size()!=_shape.size()){
-    std::cout<<"MConv2D:: "<<WHERE<<" Dimension not match !"<<std::endl;
-    std::cout<<"Dim of MConv2D: "<<_shape.size()<<" Dim of Input: "<<shape.size()<<std::endl;
+    std::cout<<"MConvND:: "<<WHERE<<" Dimension not match !"<<std::endl;
+    std::cout<<"Dim of MConvND: "<<_shape.size()<<" Dim of Input: "<<shape.size()<<std::endl;
     return 0;
   }
   
   //the shape of the filter should less tan the 
   //tensor
   for(unsigned int i=0;i<_shape.size();i++){
+    //the last dimension must be the same
+    if(i==_shape.size()-1){
+      if(_shape[i]!=shape[i]){
+        std::cout<<"MConvND:: "<<WHERE<<" the last dimension must be the same for filter ! "<<std::endl;
+	return 0;
+      }
+    }
+
     if(_shape[i]>shape[i]){
-      std::cout<<"MConv2D:: "<<WHERE<<" the shape of the tensor is less than filter !"<<std::endl;
+      std::cout<<"MConvND:: "<<WHERE<<" the shape of the tensor is less than filter !"<<std::endl;
       return 0;
     }
   }
@@ -70,8 +90,16 @@ MTensor* MConv2D::GetOutTensor(const MShape& shape,bool set_sparse){
   out_shape[_shape.size()-1] = _nft;
   for(unsigned int j=0;j<_shape.size()-1;j++){
     unsigned int sp = shape[j];
+
     if(!_same_pad){
+      if(shape[j]<_shape[j]){
+        std::cout<<"MConvND:: "<<WHERE<<" bad shape for tensor"<<std::endl;
+	return 0;
+      }
       sp = (shape[j]-_shape[j])/_stride+1;
+    }
+    else{
+      sp=ceil(1.0*shape[j]/_stride);
     }
     out_shape[j] = sp;
   }
@@ -80,7 +108,9 @@ MTensor* MConv2D::GetOutTensor(const MShape& shape,bool set_sparse){
   return out_tensor;
 }
 
-MTensor* MConv2D::GetOutPut(MTensor* tensor,bool set_sparse){
+
+//without padding version
+MTensor* MConvND::GetOutPut(MTensor* tensor,bool set_sparse){
   //get the initial output tensor
   std::cout<<"Input Tensor Shape: "<<std::endl;
   PrintShape(tensor->GetShape());
@@ -107,6 +137,8 @@ MTensor* MConv2D::GetOutPut(MTensor* tensor,bool set_sparse){
   //6. the key is the intertransformation between the 1D array index and multidimentional 
   //   index
   
+  if(_same_pad) SetPaddingShift(out_tensor->GetShape());
+
   unsigned int out_volume = out_tensor->GetVolume();
   std::cout<<"volume of output tensor: "<<out_volume<<std::endl;
   //index used for output tensor
@@ -135,16 +167,26 @@ MTensor* MConv2D::GetOutPut(MTensor* tensor,bool set_sparse){
     
 
     //the result of the matrix multiplication
-    float val = 0;
+    float val = _bias[i_ft];
     for(unsigned int j=0;j<ft_volume;j++){
       MIndex index0 = t_filter->GetIndexFrom1D(j);
 //      std::cout<<"Get index out of 1D for filter !"<<std::endl;
       //get the corresponding element for input tensor
       MIndex index1 = AddIndex(index0,ref_index);
 //      std::cout<<"Get the index for input tensor !"<<std::endl;
+        
       float val0 = t_filter->GetValue(index0);
 //      std::cout<<"Get value of filter "<<val0<<std::endl;
-      float val1 = tensor->GetValue(index1);;
+      float val1 = 0;
+      if(_same_pad){
+	if(GetPaddingIndex(index1,tensor->GetShape())){
+          val1 = tensor->GetValue(index1);
+	}
+      }
+      else{
+        val1 = tensor->GetValue(index1);
+      }
+
 //      std::cout<<"Get Value of input tensor "<<val1<<std::endl;
       val+=val0*val1;
     }
@@ -154,3 +196,50 @@ MTensor* MConv2D::GetOutPut(MTensor* tensor,bool set_sparse){
   return out_tensor;
 }
 
+void MConvND::SetPaddingShift(const MShape &shape){
+  //add the pading information
+  //here is the padding process
+  //we assume the padding is symmetric and the padding value is always 0
+  //p: the total padding rows or colums
+  //m: size of the input tensor
+  //n: size of the filter
+  //s: the stride
+  //0: the output size
+  //the size after the padding is
+  //[(m-n+2p)/s]+1 , [] means round to smaller integer
+  //For the same padding, 
+  //the output size should be o = [m/s]
+  //the value p
+  //p=(o-1)s+n-m
+  //the left padding p_l = [p/2] (begin)
+  //right padding p_r = p-p_l [end]
+  
+  std::vector<unsigned int> shift_start(shape.size(),0);
+  std::vector<unsigned int> shift_end(shape.size(),0);
+  _padding_shift0 = shift_start;
+  _padding_shift1 = shift_end;
+  //setting the value of the start and end
+  for(unsigned int i=0;i<shape.size()-1;i++){
+    //if we use the unsigned int for math,
+    //will result in troubles
+    
+    int m = shape[i];
+    int n = _shape[i];
+    int s = _stride;
+    int o = ceil(1.0*m/s);
+    int p = (o-1)*s+n-m;
+    _padding_shift0[i]=p/2;
+    _padding_shift1[i]=p-_padding_shift0[i];
+  }
+}
+
+bool MConvND::GetPaddingIndex(MIndex &index,const MShape& shape){
+  if(index.size()==0 || shape.size()==0) return false;
+  for(unsigned int i=0;i<shape.size()-1;i++){
+    if(index[i]<_padding_shift0[i]) return false;
+    if(index[i]>=shape[i]+_padding_shift0[i]) return false;
+    index[i] = index[i]-_padding_shift0[i];
+  }
+  
+  return true;
+}

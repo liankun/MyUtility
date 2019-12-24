@@ -35,13 +35,13 @@ void TestMConv2DPy(){
   }
   
   //the last dimension is the channel
-  //create a shape of (2,3,1)
+  //create a shape of (3,3,1)
   MShape cov_shape = MShape(3,3);
-  cov_shape[0]=2;
+//  cov_shape[0]=2;
   cov_shape[2]=1;
 
 /*
-  MConv2D::MConv2D(const MShape& shape,
+  MConvND::MConvND(const MShape& shape,
                  unsigned int nft,
                  unsigned int stride,
                  bool same_pad,
@@ -49,7 +49,7 @@ void TestMConv2DPy(){
                  bool for_test,
                  float fill_value)
 */
-  MConv2D* cov2d = new MConv2D(cov_shape,1,1,false,true,true,1);
+  MConvND* cov2d = new MConvND(cov_shape,1,3,true,true,true,-10000.);
   MTensor* out_tensor = cov2d->GetOutPut(tensor);
   if(!out_tensor) return;
 //  if(out_tensor) out_tensor->Print1DTensor();
@@ -59,10 +59,10 @@ void TestMConv2DPy(){
 
   //calculate by another method
 
-  ifstream in_txt1("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MpcEx_CNN/Test/MConv2D/out_maxtrix.txt");
+  ifstream in_txt1("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MpcEx_CNN/Test/MConv2D/out_matrix_keras_stride_3_ft3x3_diff_value_transpose_same_bias.txt");
   
-  const int out_size = 510;
-  float out_mat[511][out_size];
+  const int out_size = 171;
+  float out_mat[171][171];
   n_lines = 0;
   while(getline(in_txt1,line)){
     stringstream linestream(line);

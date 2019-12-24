@@ -77,6 +77,8 @@ class MTensor{
     //set all tensor value to a single value
     //for test
     void SetValue(float val);
+    //for test
+    void SetValue();
 
 };
 
