@@ -1,6 +1,6 @@
 #include <vector>
 
-void TestMConv2DPy(){
+void TestMPooling(){
   gSystem->Load("libMyUtility.so");
 
   ifstream in_txt("test_matrix.txt");
@@ -16,12 +16,14 @@ void TestMConv2DPy(){
     n_lines++;
   }
   
+  //the shape of the image
+  //is (512,512,1)
   unsigned int nsize=512;
   MShape shape(3,nsize);
   shape[2]=1;
   
   //try sparse matrix
-  MTensor* tensor = new MTensor(shape,true);
+  MTensor* tensor = new MTensor(shape);
   //two dim 
   MIndex index(3,0);
   index[2]=0;
@@ -34,35 +36,33 @@ void TestMConv2DPy(){
     }
   }
   
-  //the last dimension is the channel
-  //create a shape of (3,3,1)
-  MShape cov_shape = MShape(3,3);
-//  cov_shape[0]=2;
-  cov_shape[2]=1;
+  //create a test Max pooling shape
+  //of (2,3)
+  MShape pool_shape = MShape(2,2);
+//  pool_shape[1]=2;
+  /*
+  MPooling(const MShape& shape,
+           unsigned int stride = 2,
+           bool same_pad=false,
+           Method md=MAX
+          );
+  */
+ 
+  MPooling* pool = new MPooling(pool_shape);
 
-/*
-  MConvND::MConvND(const MShape& shape,
-                 unsigned int nft,
-                 unsigned int stride,
-                 bool same_pad,
-		 bool set_sparse,
-                 bool for_test,
-                 float fill_value)
-*/
-  MConv* cov2d = new MConv(cov_shape,1,3,true,true,true,-10000.);
-  MTensor* out_tensor = cov2d->GetOutPut(tensor);
-  if(!out_tensor) return;
-//  if(out_tensor) out_tensor->Print1DTensor();
+  MTensor* out_tensor = pool->GetOutPut(tensor);
+  if(!out_tensor){
+    cout<<"No Output !"<<endl;
+    return;
+  }
 
   const MShape out_shape = out_tensor->GetShape();
   cout<<out_shape[0]<<" "<<out_shape[1]<<endl;
 
-  //calculate by another method
-
-  ifstream in_txt1("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MpcEx_CNN/Test/MConv2D/out_matrix_keras_stride_3_ft3x3_diff_value_transpose_same_bias.txt");
+  ifstream in_txt1("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/MpcEx_CNN/Test/MConv2D/out_matrix_keras_MaxPool_2x3_stride_2.txt");
   
-  const int out_size = 171;
-  float out_mat[171][171];
+  const int out_size = 255;
+  float out_mat[256][255];
   n_lines = 0;
   while(getline(in_txt1,line)){
     stringstream linestream(line);

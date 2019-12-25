@@ -1,5 +1,5 @@
-#ifndef __MCONVND_H__
-#define __MCONVND_H__
+#ifndef __MCONV_H__
+#define __MCONV_H__
 
 /**
  * Convolutional ND, n dimensional
@@ -10,7 +10,7 @@
 #include "MTensor.h"
 #include "MIndexing.h"
 
-class MConvND:MLayer{
+class MConv:MLayer{
   private:
     //use the tensor as the filters
     //this is an array of filters
@@ -39,7 +39,7 @@ class MConvND:MLayer{
     //otherwise, the fill valid will
     //be invalid
     //the sparse is set for the filter
-    MConvND(const MShape& shape,
+    MConv(const MShape& shape,
             unsigned int nft,
 	    unsigned int stride = 1,
 	    bool same_pad=false,
@@ -47,10 +47,10 @@ class MConvND:MLayer{
 	    bool for_test = false,
 	    float fill_value=0);
     
-    virtual ~MConvND();
+    virtual ~MConv();
     MTensor* GetOutPut(MTensor*,bool set_sparse=false);
     void Print();
 
 };
 
-#endif /**__MCON2D_H__**/
+#endif /**__MCONV_H__**/

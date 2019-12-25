@@ -35,6 +35,7 @@
 #pragma link C++ class JohnCalibrateShowerEnergy;
 #pragma link C++ class MTensor;
 #pragma link C++ class MLayer;
-#pragma link C++ class MConvND;
+#pragma link C++ class MConv;
+#pragma link C++ class MPooling;
 
 #endif /* __CINT__ */

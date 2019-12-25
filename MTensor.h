@@ -21,6 +21,7 @@ class MTensor{
     MShape _shape;
 //    unsigned long int
     //the effective size of the tensor
+    //for the sparse map
     unsigned int _nsize;
     //the total volume of the tensor
     unsigned int _volume;

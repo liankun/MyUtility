@@ -17,15 +17,22 @@ inline MIndex AddIndex(const MIndex& index0,const MIndex& index1){
   //if index one is (n,m)
   //index two is (s,t)
   //the added one is (n+s,m+t)
-  
-  MIndex add_index = MIndex(index0.size(),0);
-  if(index0.size()!=index1.size()){
-    std::cout<<"AddIndex: "<<"invalid index !!!"<<std::endl;
-    return add_index;
-  }
 
-  for(unsigned int i=0;i<index0.size();i++){
-    add_index[i] = index0[i]+index1[i];
+  unsigned int nsize = index0.size();
+  if(nsize<index1.size()) nsize = index1.size();
+  
+  MIndex add_index = MIndex(nsize,0);
+//  if(index0.size()!=index1.size()){
+//    std::cout<<"AddIndex: "<<"invalid index !!!"<<std::endl;
+//    return add_index;
+//  }
+
+  for(unsigned int i=0;i<nsize;i++){
+    unsigned int val0 = 0;
+    unsigned int val1 = 0;
+    if(i<index0.size()) val0 = index0[i];
+    if(i<index1.size()) val1 = index1[i];
+    add_index[i] = val0+val1;
   }
   return add_index;
 }
