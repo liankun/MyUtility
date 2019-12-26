@@ -52,7 +52,8 @@ include_HEADERS = \
   MTensor.h \
   MLayer.h \
   MConv.h \
-  MPooling.h
+  MPooling.h \
+  MActivation.h
  
 libMyUtility_la_SOURCES = \
   ExEvent.cxx \
@@ -81,7 +82,8 @@ libMyUtility_la_SOURCES = \
   MTensor.cxx \
   MLayer.cxx \
   MConv.cxx \
-  MPooling.cxx
+  MPooling.cxx \
+  MActivation.cxx
 
 libMyUtility_la_LIBADD = \
   -L$(libdir) \
@@ -127,6 +129,7 @@ MyUtility_Dict.C: \
   MLayer.h \
   MConv.h \
   MPooling.h \
+  MActivation.h \
   MyUtilityLinkDef.h 
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) $^
 

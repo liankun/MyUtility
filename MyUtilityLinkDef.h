@@ -37,5 +37,6 @@
 #pragma link C++ class MLayer;
 #pragma link C++ class MConv;
 #pragma link C++ class MPooling;
+#pragma link C++ class MActivation;
 
 #endif /* __CINT__ */
