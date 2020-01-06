@@ -9,6 +9,7 @@ Data_File
 #ignore some macros files
 *.root
 macros/*.txt
+macros/AutoDict*
 
 #ignore the files
 Makefile.in

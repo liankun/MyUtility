@@ -38,5 +38,7 @@
 #pragma link C++ class MConv;
 #pragma link C++ class MPooling;
 #pragma link C++ class MActivation;
+#pragma link C++ class MFlatten;
+#pragma link C++ class MDense;
 
 #endif /* __CINT__ */

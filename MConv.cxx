@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
+#include <iterator>
 
 MConv::MConv(const MShape& shape,
                  unsigned int nft,
@@ -28,6 +29,7 @@ MConv::MConv(const MShape& shape,
 
   for(unsigned int i=0;i<_nft;i++){
     MTensor* t_ft = new MTensor(shape,set_sparse);
+    _ft_volume = t_ft->GetVolume();
     float b=0;
     if(for_test){
       if(fill_value>-9999) t_ft->SetValue(fill_value);
@@ -140,7 +142,7 @@ MTensor* MConv::GetOutPut(MTensor* tensor,bool set_sparse){
   if(_same_pad) SetPaddingShift(out_tensor->GetShape());
 
   unsigned int out_volume = out_tensor->GetVolume();
-  std::cout<<"volume of output tensor: "<<out_volume<<std::endl;
+//  std::cout<<"volume of output tensor: "<<out_volume<<std::endl;
   //index used for output tensor
   for(unsigned int i=0;i<out_volume;i++){
     //get corresponding index
@@ -243,3 +245,61 @@ bool MConv::GetPaddingIndex(MIndex &index,const MShape& shape){
   
   return true;
 }
+
+void MConv::SetBias(const float* values){
+  //make sure the dimension matches
+  if(!values){
+    std::cout<<"MConv.cxx:: "<<WHERE<<"Null Pointer"<<std::endl;
+  }
+  
+  for(unsigned int i=0;i<_nft;i++){
+    _bias[i]=values[i];
+  }
+}
+
+void MConv::SetFilter(const float* values){
+  if(!values){
+    std::cout<<"MConv.cxx:: "<<WHERE<<"Null Pointer"<<std::endl;
+  }
+  
+  for(unsigned int i=0;i<_nft;i++){
+    _filters[i]->Set1DValues(&(values[i*_ft_volume]));
+  }
+}
+
+void MConv::SetFilter(const std::vector<float>& values){
+  unsigned int total_size = _ft_volume*_nft;
+  if(total_size!=values.size()){
+    std::cout<<"MConv.cxx:: "<<WHERE<<" "<<"size not match!"<<std::endl;
+    return;
+  }
+  
+  std::vector<float>::const_iterator it0 = values.begin();
+  std::vector<float>::const_iterator it1 = values.begin();
+  for(unsigned int i=0;i<_nft;i++){
+    it0=it1;
+//    std::advance(it0,i*_ft_volume);
+    std::advance(it1,_ft_volume);
+    //create a new vector
+    std::vector<float> vals(it0,it1);
+    _filters[i]->Set1DValues(vals);
+  }
+}
+
+
+void MConv::SetBias(const std::vector<float>& values){
+  if(values.size()!=_nft){
+    std::cout<<"MConv.cxx:: "<<WHERE<<" size not match !"<<std::endl;
+  }
+  
+  for(unsigned int i=0;i<_nft;i++){
+    _bias[i]=values[i];
+  }
+}
+
+MTensor* MConv::GetFilter(unsigned int i){
+  if(i<_nft) return _filters[i];
+  return 0;
+}
+
+

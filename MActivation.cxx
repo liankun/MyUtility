@@ -2,6 +2,7 @@
 #include "MTensor.h"
 #include <iostream>
 #include <math.h>
+#include <cmath>
 
 MActivation::MActivation(Function fc){
   _fc = fc;
@@ -49,8 +50,12 @@ MTensor* MActivation::GetOutPut(MTensor* tensor,bool set_sparse){
     if(_fc>=SOFTMAX){
       std::cout<<"SOFTMAX NDim == 1"<<std::endl;
       for(unsigned int k=0;k<tensor->GetVolume();k++){
-        de_value+=tensor->GetValue(k);
+        de_value+=exp(tensor->GetValue(k));
       }
+    }
+
+    if(!std::isfinite(de_value)){
+      std::cout<<"MActivation.cxx:: "<<WHERE<<" nan or infinite value, the result is invalid !"<<std::endl;
     }
   }
   
@@ -66,7 +71,7 @@ MTensor* MActivation::GetOutPut(MTensor* tensor,bool set_sparse){
       }
       else{
         if(de_value!=0) out_val=out_val/de_value;
-	else std::cout<<"MActivation:: "<<WHERE<<" bad de_value !"<<std::endl;
+	else std::cout<<"MActivation.cxx:: "<<WHERE<<" bad de_value !"<<std::endl;
       }
     }
     

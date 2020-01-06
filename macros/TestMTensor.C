@@ -1,5 +1,5 @@
 #include<vector>
-
+#include "../MIndexing.h"
 
 void get_size(unsigned int (&a)[5]){
   cout<<"size of the array: "<<sizeof(a)<<endl;
@@ -18,7 +18,10 @@ void TestMTensor(){
   gSystem->Load("libMyUtility.so");
 //  vector<int> v{ 1,2,3 };
 //  cout<<v.size()<<endl;
-  vector<unsigned int> v(4,0);
+//  set shape of (2,2)
+//  vector<unsigned int> v(2,2);
+  
+  /*
   v[0]=1;
   v[1]=2;
   v[2]=3;
@@ -38,6 +41,19 @@ void TestMTensor(){
   tensor[idx1]=1;
 
   tensor.Print1DTensor();
+  */
+  
+  MShape shape(2,2);
+  float values[4] = {1,3,2,4};
+  MTensor* tensor = new  MTensor(shape);
+  tensor->Set1DValues(values);
+
+  for(unsigned int i=0;i<tensor->GetVolume();i++){
+    MIndex index=tensor->GetIndexFrom1D(i);
+    PrintIndex(index);
+    cout<<"value "<<tensor->GetValue(i)<<endl;
+  }
+
 }
 
 

@@ -16,6 +16,7 @@ MPooling::MPooling(const MShape& shape,
   _same_pad = same_pad;
   _stride = stride;
   _dummy_ft = new MTensor(_shape,true);
+  _method = md;
 
   if(_stride==0){
     std::cout<<"MPooling:: "<<WHERE<<" invalid stride will set to 2!"<<std::endl;
@@ -39,13 +40,14 @@ void MPooling::Print(){
   for(unsigned int i=0;i<_shape.size();i++){
     std::cout<<_shape[i]<<" ";
   }
+  std::cout<<std::endl;
   std::cout<<"Method: ";
   if(_method==MAX) std::cout<<"MAX"<<std::endl;
   else std::cout<<"AVG"<<std::endl;
 }
 
 MTensor* MPooling::GetOutTensor(const MShape& shape,bool set_sparse){
-   //they should have the same dimension
+   //the dimension of shape should one less than input tensor
   if(shape.size()!=_shape.size()+1){
     std::cout<<"MPooling:: "<<WHERE<<" Dimension not match !"<<std::endl;
     std::cout<<"MPooling:: "<<WHERE<<" Dim of MPooling: "<<_shape.size()<<" Dim of Input: "<<shape.size()<<std::endl;
@@ -80,8 +82,8 @@ MTensor* MPooling::GetOutTensor(const MShape& shape,bool set_sparse){
     out_shape[j] = sp;
   }
  
-  std::cout<<"Output tensor shape: "<<std::endl;
-  PrintShape(out_shape);
+//  std::cout<<"Output tensor shape: "<<std::endl;
+//  PrintShape(out_shape);
   MTensor* out_tensor = new MTensor(out_shape,set_sparse);
   return out_tensor;
 }
@@ -90,8 +92,8 @@ MTensor* MPooling::GetOutTensor(const MShape& shape,bool set_sparse){
 //without padding version
 MTensor* MPooling::GetOutPut(MTensor* tensor,bool set_sparse){
   //get the initial output tensor
-  std::cout<<"Input Tensor Shape: "<<std::endl;
-  PrintShape(tensor->GetShape());
+//  std::cout<<"Input Tensor Shape: "<<std::endl;
+//  PrintShape(tensor->GetShape());
 
   MTensor* out_tensor = GetOutTensor(tensor->GetShape(),set_sparse);
   if(!out_tensor){

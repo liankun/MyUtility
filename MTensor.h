@@ -80,6 +80,16 @@ class MTensor{
     void SetValue(float val);
     //for test
     void SetValue();
+    
+    //all the tensor will be set by one 1D arrays
+    //the lenght of the array should be equal to the 
+    //Volume of the tensor, or it will cause errors
+    //make sure the volume matches
+    void Set1DValues(const float* values);
+    void Set1DValues(const std::vector<float>& values);
+    
+    void Set1DValues(std::vector<float>::const_iterator begin,
+                     std::vector<float>::const_iterator end);
 
 };
 

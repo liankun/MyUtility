@@ -168,7 +168,7 @@ void MTensor::Print1DTensor(){
 
 MIndex MTensor::GetIndexFrom1D(unsigned int idx){
   if(idx>=_volume){
-    std::cout<<"MTensor:: "<<WHERE<<" the index is larger than the volume of the tensor"<<std::endl;
+    std::cout<<"MTensor.cxx:: "<<WHERE<<" the index is larger than the volume of the tensor"<<std::endl;
     return MIndex();
   }  
   
@@ -207,3 +207,38 @@ void MTensor::SetValue(){
     else _tensor[i]=i;
   }
 }
+
+void MTensor::Set1DValues(const float* values){
+  if(!values){
+    std::cout<<"MTensor.cxx "<<WHERE<<" null pointer !"<<std::endl;
+    return;
+  }
+
+  for(unsigned int i=0;i<_volume;i++){
+    //we have sparse matrix setting
+    (*this)[i]=values[i];    
+  }
+}
+
+void MTensor::Set1DValues(const std::vector<float>& values){
+  if(values.size()!=_volume){
+    std::cout<<"MTensor.cxx:: "<<WHERE<<" size not match!"<<std::endl;
+    return;
+  }
+  for(unsigned int i=0;i<values.size();i++){
+    //we have sparse matrix setting
+    (*this)[i] = values[i];    
+  }
+}
+
+void MTensor::Set1DValues(std::vector<float>::const_iterator begin,
+		std::vector<float>::const_iterator end){
+  unsigned int i=0;
+  for(;begin!=end;begin++){
+//    std::cout<<"1D index: "<<i<<std::endl;
+    (*this)[i] = *begin;
+//    std::cout<<(*this)[i]<<std::endl;
+    i++;
+  }
+}
+

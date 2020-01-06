@@ -10,7 +10,7 @@
 #include "MTensor.h"
 #include "MIndexing.h"
 
-class MConv:MLayer{
+class MConv: public MLayer{
   private:
     //use the tensor as the filters
     //this is an array of filters
@@ -26,6 +26,7 @@ class MConv:MLayer{
     MShape _shape;
     bool _same_pad;
     unsigned int _stride;
+    unsigned int _ft_volume;
 
     MTensor* GetOutTensor(const MShape &shape,bool set_sparse=false);
     void SetPaddingShift(const MShape &shape);
@@ -49,7 +50,17 @@ class MConv:MLayer{
     
     virtual ~MConv();
     MTensor* GetOutPut(MTensor*,bool set_sparse=false);
+    MTensor* GetFilter(unsigned int i);
+
     void Print();
+    //set the values for filter
+    //all values are flatten to 1D
+    void SetFilter(const float* values);
+    //set the values for bias
+    void SetBias(const float* values);
+
+    void SetFilter(const std::vector<float>& values);
+    void SetBias(const std::vector<float>& values);
 
 };
 
