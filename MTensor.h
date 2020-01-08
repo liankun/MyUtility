@@ -80,6 +80,9 @@ class MTensor{
     void SetValue(float val);
     //for test
     void SetValue();
+
+    void SetValue(const unsigned int i,float val);
+    void SetValue(const MIndex index,float val);
     
     //all the tensor will be set by one 1D arrays
     //the lenght of the array should be equal to the 
@@ -90,6 +93,7 @@ class MTensor{
     
     void Set1DValues(std::vector<float>::const_iterator begin,
                      std::vector<float>::const_iterator end);
+    void Clear();
 
 };
 

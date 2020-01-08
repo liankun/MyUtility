@@ -125,6 +125,10 @@ float &MTensor::operator[](const MIndex index){
   return _tensor[one_d_i];
 }
 
+void MTensor::SetValue(const MIndex index,float val){
+  (*this)[index] = val;
+}
+
 float &MTensor::operator[](const unsigned int i){
   if(i>=_volume){
     std::cout<<"MTensor:: "<<WHERE<<" invalid index!"<<std::endl;
@@ -142,6 +146,10 @@ float &MTensor::operator[](const unsigned int i){
   }
 
   return _tensor[i];
+}
+
+void MTensor::SetValue(const unsigned int i,float val){
+  (*this)[i]=val;
 }
 
 MTensor::~MTensor(){
@@ -239,6 +247,18 @@ void MTensor::Set1DValues(std::vector<float>::const_iterator begin,
     (*this)[i] = *begin;
 //    std::cout<<(*this)[i]<<std::endl;
     i++;
+  }
+}
+
+void MTensor::Clear(){
+  //all value will set to zero
+  if(_is_sparse){
+    _sparse_map.clear();
+  }
+  else{
+    for(unsigned int i=0;i<_volume;i++){
+      _tensor[i]=0;
+    }   
   }
 }
 

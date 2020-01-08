@@ -40,5 +40,6 @@
 #pragma link C++ class MActivation;
 #pragma link C++ class MFlatten;
 #pragma link C++ class MDense;
+#pragma link C++ class MPreprocess;
 
 #endif /* __CINT__ */

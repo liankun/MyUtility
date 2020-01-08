@@ -55,7 +55,8 @@ include_HEADERS = \
   MPooling.h \
   MActivation.h \
   MFlatten.h \
-  MDense.h
+  MDense.h \
+  MPreprocess.h
  
 libMyUtility_la_SOURCES = \
   ExEvent.cxx \
@@ -87,7 +88,8 @@ libMyUtility_la_SOURCES = \
   MPooling.cxx \
   MActivation.cxx \
   MFlatten.cxx \
-  MDense.cxx
+  MDense.cxx \
+  MPreprocess.cxx
 
 libMyUtility_la_LIBADD = \
   -L$(libdir) \
@@ -136,6 +138,7 @@ MyUtility_Dict.C: \
   MActivation.h \
   MFlatten.h \
   MDense.h \
+  MPreprocess.h \
   MyUtilityLinkDef.h 
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) $^
 
