@@ -41,5 +41,7 @@
 #pragma link C++ class MFlatten;
 #pragma link C++ class MDense;
 #pragma link C++ class MPreprocess;
+#pragma link C++ class MModelBase;
+#pragma link C++ class MModelV1;
 
 #endif /* __CINT__ */

@@ -11,7 +11,7 @@ MConv::MConv(const MShape& shape,
 		 bool same_pad,
 		 bool set_sparse,
 		 bool for_test,
-		 float fill_value){
+		 double fill_value){
   MLayer();
   _shape = shape;
   _nft = nft;
@@ -30,7 +30,7 @@ MConv::MConv(const MShape& shape,
   for(unsigned int i=0;i<_nft;i++){
     MTensor* t_ft = new MTensor(shape,set_sparse);
     _ft_volume = t_ft->GetVolume();
-    float b=0;
+    double b=0;
     if(for_test){
       if(fill_value>-9999) t_ft->SetValue(fill_value);
       else t_ft->SetValue();
@@ -39,7 +39,6 @@ MConv::MConv(const MShape& shape,
     _filters.push_back(t_ft);
     _bias.push_back(b);
   }
-
 }
 
 
@@ -169,7 +168,7 @@ MTensor* MConv::GetOutPut(MTensor* tensor,bool set_sparse){
     
 
     //the result of the matrix multiplication
-    float val = _bias[i_ft];
+    double val = _bias[i_ft];
     for(unsigned int j=0;j<ft_volume;j++){
       MIndex index0 = t_filter->GetIndexFrom1D(j);
 //      std::cout<<"Get index out of 1D for filter !"<<std::endl;
@@ -177,9 +176,9 @@ MTensor* MConv::GetOutPut(MTensor* tensor,bool set_sparse){
       MIndex index1 = AddIndex(index0,ref_index);
 //      std::cout<<"Get the index for input tensor !"<<std::endl;
         
-      float val0 = t_filter->GetValue(index0);
+      double val0 = t_filter->GetValue(index0);
 //      std::cout<<"Get value of filter "<<val0<<std::endl;
-      float val1 = 0;
+      double val1 = 0;
       if(_same_pad){
 	if(GetPaddingIndex(index1,tensor->GetShape())){
           val1 = tensor->GetValue(index1);
@@ -246,7 +245,7 @@ bool MConv::GetPaddingIndex(MIndex &index,const MShape& shape){
   return true;
 }
 
-void MConv::SetBias(const float* values){
+void MConv::SetBias(const double* values){
   //make sure the dimension matches
   if(!values){
     std::cout<<"MConv.cxx:: "<<WHERE<<"Null Pointer"<<std::endl;
@@ -257,7 +256,7 @@ void MConv::SetBias(const float* values){
   }
 }
 
-void MConv::SetFilter(const float* values){
+void MConv::SetFilter(const double* values){
   if(!values){
     std::cout<<"MConv.cxx:: "<<WHERE<<"Null Pointer"<<std::endl;
   }
@@ -267,27 +266,34 @@ void MConv::SetFilter(const float* values){
   }
 }
 
-void MConv::SetFilter(const std::vector<float>& values){
+void MConv::SetWeights(const double* values){
+  SetFilter(values);
+}
+
+void MConv::SetFilter(const std::vector<double>& values){
   unsigned int total_size = _ft_volume*_nft;
   if(total_size!=values.size()){
     std::cout<<"MConv.cxx:: "<<WHERE<<" "<<"size not match!"<<std::endl;
     return;
   }
   
-  std::vector<float>::const_iterator it0 = values.begin();
-  std::vector<float>::const_iterator it1 = values.begin();
+  std::vector<double>::const_iterator it0 = values.begin();
+  std::vector<double>::const_iterator it1 = values.begin();
   for(unsigned int i=0;i<_nft;i++){
     it0=it1;
 //    std::advance(it0,i*_ft_volume);
     std::advance(it1,_ft_volume);
     //create a new vector
-    std::vector<float> vals(it0,it1);
+    std::vector<double> vals(it0,it1);
     _filters[i]->Set1DValues(vals);
   }
 }
 
+void MConv::SetWeights(const std::vector<double>& values){
+  SetFilter(values);
+}
 
-void MConv::SetBias(const std::vector<float>& values){
+void MConv::SetBias(const std::vector<double>& values){
   if(values.size()!=_nft){
     std::cout<<"MConv.cxx:: "<<WHERE<<" size not match !"<<std::endl;
   }

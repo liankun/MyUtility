@@ -2,7 +2,7 @@
 #include <vector>
 #include "../MIndexing.h"
 
-typedef vector<float> W;
+typedef vector<double> W;
 
 
 void TestSeriesModel(){
@@ -23,9 +23,9 @@ void TestSeriesModel(){
     }
 
     layer_names.push_back(line);
-    float val;
-    vector<float> weights;
-    vector<float> bias;
+    double val;
+    vector<double> weights;
+    vector<double> bias;
     MShape shape;
     unsigned int dim;
     
@@ -72,7 +72,7 @@ void TestSeriesModel(){
   data_shape[2]=8;
 
   MTensor* data_tensor=new MTensor(data_shape);
-  float data[33800]={0.};
+  double data[33800]={0.};
   getline(in_txt1,line);
   stringstream ss4(line);
   for(unsigned int i=0;i<33800;i++){
@@ -83,6 +83,7 @@ void TestSeriesModel(){
   //start build model
   
   vector<MLayer*> mlayers_list;
+
   for(unsigned int i=0;i<6;i++){
     MShape t_shape = all_shapes[i];
     unsigned int t_nft=all_shapes[i][t_shape.size()-1];
@@ -98,7 +99,7 @@ void TestSeriesModel(){
     PrintShape(t_shape);
 //    cout<<"Number of filter: "<<t_nft<<endl;
 //    cout<<"Number of total weights: "<<all_weights[i].size()<<endl;
-    MConv* conv = new MConv(t_shape,t_nft,1,true);
+    MLayer* conv = new MConv(t_shape,t_nft,1,true);
 
 //    conv->SetFilter(all_weights[i].begin(),all_weights[i].end());
 //    conv->SetBias(all_bias[i].begin(),all_bias[i].end());
@@ -175,8 +176,8 @@ void TestSeriesModel(){
   ifstream in_txt3("/gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/Anaconda/test/first_layer_output.txt");
   getline(in_txt3,line);
   stringstream ss5(line);
-  vector<float> fst_layer_values;
-  float val;
+  vector<double> fst_layer_values;
+  double val;
   while(ss5>>val){
     fst_layer_values.push_back(val);
   }
@@ -191,8 +192,8 @@ void TestSeriesModel(){
   cout<<"Number values: "<<fst_layer_values.size()<<endl;
 
   for(unsigned int i=0;i<in_tensor->GetVolume();i++){
-    float val0 = in_tensor->GetValue(i);
-    float val1 = fst_layer_values[i];
+    double val0 = in_tensor->GetValue(i);
+    double val1 = fst_layer_values[i];
     if(fabs(val0-val1)>1.0e-6){
       cout<<"bad news, values not the same: "<<val0<<" "<<val1<<endl;
     }

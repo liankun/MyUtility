@@ -18,9 +18,9 @@ class ExShower;
 class TMpcExHitContainer;
 class TMpcExHit;
 
-const float MINSPACE=-20; //20cm
-const float DSPACE=40./214.;//in cm
-const float SHOWERSIZE=6;//a size of 6cm x 6cm
+const double MINSPACE=-20; //20cm
+const double DSPACE=40./214.;//in cm
+const double SHOWERSIZE=6;//a size of 6cm x 6cm
 const int NSPACE=int(2*SHOWERSIZE/DSPACE)+1;
 
 class MPreprocess{
@@ -38,7 +38,7 @@ class MPreprocess{
     void SetHitContainer(const TMpcExHitContainer*);
     void SetShape(MShape& shape);
     
-    bool SetTensorByHit(int layer,float x,float y,float e,MTensor* t);
+    bool SetTensorByHit(int layer,double x,double y,double e,MTensor* t);
   private:
     MShape _shape;
     std::map<int,TMpcExHit*> _ex_hit_map; 

@@ -15,7 +15,7 @@ class MConv: public MLayer{
     //use the tensor as the filters
     //this is an array of filters
     std::vector<MTensor*> _filters;
-    std::vector<float> _bias;
+    std::vector<double> _bias;
 
     //the padding shift value: added columns
     //and rows for each dimension 
@@ -46,7 +46,7 @@ class MConv: public MLayer{
 	    bool same_pad=false,
 	    bool set_sparse=false,
 	    bool for_test = false,
-	    float fill_value=0);
+	    double fill_value=0);
     
     virtual ~MConv();
     MTensor* GetOutPut(MTensor*,bool set_sparse=false);
@@ -55,12 +55,14 @@ class MConv: public MLayer{
     void Print();
     //set the values for filter
     //all values are flatten to 1D
-    void SetFilter(const float* values);
+    void SetFilter(const double* values);
+    void SetWeights(const double* values);
     //set the values for bias
-    void SetBias(const float* values);
+    void SetBias(const double* values);
 
-    void SetFilter(const std::vector<float>& values);
-    void SetBias(const std::vector<float>& values);
+    void SetFilter(const std::vector<double>& values);
+    void SetWeights(const std::vector<double>& values);
+    void SetBias(const std::vector<double>& values);
 
 };
 

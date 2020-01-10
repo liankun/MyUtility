@@ -43,7 +43,7 @@ MTensor* MDense::GetOutPut(MTensor* t,bool set_sparse){
   MTensor* output = new MTensor(out_shape,set_sparse);
   MIndex index(2,0);
   for(unsigned int i=0;i<_shape[0];i++){
-    float sum=0;
+    double sum=0;
     for(unsigned int j=0;j<_shape[1];j++){
       index[0]=i;
       index[1]=j;
@@ -62,13 +62,13 @@ void MDense::Print(){
   std::cout<<"Sparse "<<_set_sparse<<std::endl;
 }
 
-void MDense::SetWeights(const float* weights){
+void MDense::SetWeights(const double* weights){
   for(unsigned int i=0;i<_volume;i++){
     (*_mat)[i]=weights[i];
   }
 }
 
-void MDense::SetWeights(const std::vector<float>& weights){
+void MDense::SetWeights(const std::vector<double>& weights){
   if(weights.size()!=_volume){
     std::cout<<"MDense.cxx:: "<<WHERE<<"dimension does not match !"<<std::endl;
     return;
@@ -79,7 +79,7 @@ void MDense::SetWeights(const std::vector<float>& weights){
   }
 }
 
-void MDense::SetBias(const float* bias){
+void MDense::SetBias(const double* bias){
   if(!bias){
     std::cout<<"MDense.cxx "<<WHERE<<" Null Pointer"<<std::endl;
     return;
@@ -89,7 +89,7 @@ void MDense::SetBias(const float* bias){
   }
 }
 
-void MDense::SetBias(const std::vector<float>& bias ){
+void MDense::SetBias(const std::vector<double>& bias ){
   if(bias.size()!=_shape[0]){
     std::cout<<"MDense.cxx:: "<<WHERE<<" Bias Size does not match "<<std::endl;
     return;

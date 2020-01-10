@@ -10,7 +10,7 @@
 
 typedef std::vector<unsigned int> MShape;
 typedef std::vector<unsigned int> MIndex;
-typedef std::map<unsigned,float> MSparseMap;
+typedef std::map<unsigned,double> MSparseMap;
 
 inline MIndex AddIndex(const MIndex& index0,const MIndex& index1){
   //add the index 

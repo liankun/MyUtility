@@ -18,7 +18,7 @@ MTensor* MActivation::GetOutPut(MTensor* tensor,bool set_sparse){
   //for the shape size >=2
   MTensor* de_tensor=0;
   //for the single value 
-  float de_value=0;
+  double de_value=0;
   if(tensor->GetNDim()>=2){
     if(_fc>=SOFTMAX){
       std::cout<<"SOFTMAX NDIM>=2"<<std::endl;
@@ -35,7 +35,7 @@ MTensor* MActivation::GetOutPut(MTensor* tensor,bool set_sparse){
       for(unsigned int j=0;j<de_tensor->GetVolume();j++){
         MIndex tmp_index = de_tensor->GetIndexFrom1D(j);
         tmp_index.push_back(0);
-        float sum_val=0;
+        double sum_val=0;
         for(unsigned int k=0;k<nchannel;k++){
 	  //only the last index the same
           tmp_index[last_idx]=k; 
@@ -60,8 +60,8 @@ MTensor* MActivation::GetOutPut(MTensor* tensor,bool set_sparse){
   }
   
   for(unsigned int i=0;i<out_tensor->GetVolume();i++){
-    float val = tensor->GetValue(i);
-    float out_val = GetActValue(val);
+    double val = tensor->GetValue(i);
+    double out_val = GetActValue(val);
     if(_fc>=SOFTMAX){
       if(de_tensor){
         MIndex de_index = tensor->GetIndexFrom1D(i);
@@ -100,7 +100,7 @@ void MActivation::Print(){
   }
 }
 
-float MActivation::GetActValue(float val){
+double MActivation::GetActValue(double val){
   switch(_fc){
     case RELU:
       if(val>0) return val;

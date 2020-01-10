@@ -56,20 +56,20 @@ bool MPreprocess::SetTensor(MTensor* t,TMpcExShower* shower){
 
   unsigned int nhits = shower->sizeHits();
   //get the shower center first
-  float vertex = shower->get_vertex();
-  float z = 205;
+  double vertex = shower->get_vertex();
+  double z = 205;
   if(shower->get_arm()==0) z = -205;
-  float ct_x = shower->get_hsx()*(z-vertex);
-  float ct_y = shower->get_hsy()*(z-vertex);
+  double ct_x = shower->get_hsx()*(z-vertex);
+  double ct_y = shower->get_hsy()*(z-vertex);
   //GeV->KeV
-  float raw_ex_e = shower->get_raw_esum()*1.0e6;
+  double raw_ex_e = shower->get_raw_esum()*1.0e6;
 
   for(unsigned int i=0;i<nhits;i++){
     int key = shower->getHit(i);
     TMpcExHit* hit = _ex_hit_map[key];
-    float x = hit->x()-ct_x;
-    float y = hit->y()-ct_y;
-    float e = hit->combined()/raw_ex_e;
+    double x = hit->x()-ct_x;
+    double y = hit->y()-ct_y;
+    double e = hit->combined()/raw_ex_e;
     int layer = hit->layer();
 
     bool is_valid = SetTensorByHit(layer,x,y,e,t);
@@ -89,22 +89,22 @@ bool MPreprocess::SetTensor(MTensor* t,ExShower* shower){
 
   MpcExMapper* ex_map = MpcExMapper::instance();
   int nhits = shower->GetNhits();
-  float vertex = shower->GetVertex();
-  float z=205;
+  double vertex = shower->GetVertex();
+  double z=205;
   if(shower->GetArm()==0) z=-205;
-  float ct_x = shower->GetHsx()*(z-vertex);
-  float ct_y = shower->GetHsy()*(z-vertex);
+  double ct_x = shower->GetHsx()*(z-vertex);
+  double ct_y = shower->GetHsy()*(z-vertex);
   
   //GeV->keV
-  float raw_ex_e = shower->GetRawMpcexE()*1.0e6;
+  double raw_ex_e = shower->GetRawMpcexE()*1.0e6;
   MIndex index(3,0);
 
   for(int i=0;i<nhits;i++){
     ExHit* hit = shower->GetExHit(i);
     int key = hit->GetKey();
-    float x = ex_map->get_x(key)-ct_x;
-    float y = ex_map->get_y(key)-ct_y;
-    float e = hit->GetE()/raw_ex_e;
+    double x = ex_map->get_x(key)-ct_x;
+    double y = ex_map->get_y(key)-ct_y;
+    double e = hit->GetE()/raw_ex_e;
     int layer = ex_map->get_layer(key);
 
     bool is_valid=SetTensorByHit(layer,x,y,e,t);
@@ -113,7 +113,7 @@ bool MPreprocess::SetTensor(MTensor* t,ExShower* shower){
   return true;
 }
 
-bool MPreprocess::SetTensorByHit(int layer,float x,float y,float e,MTensor* t){
+bool MPreprocess::SetTensorByHit(int layer,double x,double y,double e,MTensor* t){
   if(!t){
     std::cout<<"MPreprocess:: Null Pointer !"<<std::endl;
     return false;

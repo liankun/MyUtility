@@ -18,7 +18,7 @@ class MActivation : public MLayer
     MTensor* GetOutPut(MTensor* tensor,bool set_sparse=false);
 
     void Print();
-    float GetActValue(float val);
+    double GetActValue(double val);
   
   private:
     Function _fc;

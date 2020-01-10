@@ -30,7 +30,7 @@ MTensor::MTensor(const MShape& shape,bool set_sparse){
     _nsize=0;
   }
   else{
-    _tensor = new float[nsize]();
+    _tensor = new double[nsize]();
     _sparse_map.clear();
     _nsize=nsize;
   }
@@ -70,7 +70,7 @@ int MTensor::Get1DIndex(const MIndex& index){
   return one_d_i;
 }
 
-float MTensor::GetValue(const MIndex index) {
+double MTensor::GetValue(const MIndex index) {
    if(!IsIndexValid(index)){
     std::cout<<"MTensor::"<<WHERE<<" Index is not valid !!!"<<std::endl;
     return -9999;
@@ -88,7 +88,7 @@ float MTensor::GetValue(const MIndex index) {
   return _tensor[one_d_i];
 }
 
-float MTensor::GetValue(const unsigned int i){
+double MTensor::GetValue(const unsigned int i){
   //volume is the total size, not the effective
   //size
   if(i>=_volume){
@@ -106,7 +106,7 @@ float MTensor::GetValue(const unsigned int i){
   return _tensor[i];
 }
 
-float &MTensor::operator[](const MIndex index){
+double &MTensor::operator[](const MIndex index){
   if(!IsIndexValid(index)){
     std::cout<<"MTensor:: "<<WHERE<<" Index is not valid !!!"<<std::endl;
     exit(1);
@@ -125,11 +125,11 @@ float &MTensor::operator[](const MIndex index){
   return _tensor[one_d_i];
 }
 
-void MTensor::SetValue(const MIndex index,float val){
+void MTensor::SetValue(const MIndex index,double val){
   (*this)[index] = val;
 }
 
-float &MTensor::operator[](const unsigned int i){
+double &MTensor::operator[](const unsigned int i){
   if(i>=_volume){
     std::cout<<"MTensor:: "<<WHERE<<" invalid index!"<<std::endl;
     exit(1);
@@ -148,7 +148,7 @@ float &MTensor::operator[](const unsigned int i){
   return _tensor[i];
 }
 
-void MTensor::SetValue(const unsigned int i,float val){
+void MTensor::SetValue(const unsigned int i,double val){
   (*this)[i]=val;
 }
 
@@ -196,7 +196,7 @@ MIndex MTensor::GetIndexFrom1D(unsigned int idx){
   return out_index;
 }
 
-void MTensor::SetValue(float val){
+void MTensor::SetValue(double val){
   //set same value for each element
   for(unsigned int i=0;i<_volume;i++){
     if(_is_sparse){
@@ -216,7 +216,7 @@ void MTensor::SetValue(){
   }
 }
 
-void MTensor::Set1DValues(const float* values){
+void MTensor::Set1DValues(const double* values){
   if(!values){
     std::cout<<"MTensor.cxx "<<WHERE<<" null pointer !"<<std::endl;
     return;
@@ -228,7 +228,7 @@ void MTensor::Set1DValues(const float* values){
   }
 }
 
-void MTensor::Set1DValues(const std::vector<float>& values){
+void MTensor::Set1DValues(const std::vector<double>& values){
   if(values.size()!=_volume){
     std::cout<<"MTensor.cxx:: "<<WHERE<<" size not match!"<<std::endl;
     return;
@@ -239,8 +239,8 @@ void MTensor::Set1DValues(const std::vector<float>& values){
   }
 }
 
-void MTensor::Set1DValues(std::vector<float>::const_iterator begin,
-		std::vector<float>::const_iterator end){
+void MTensor::Set1DValues(std::vector<double>::const_iterator begin,
+		std::vector<double>::const_iterator end){
   unsigned int i=0;
   for(;begin!=end;begin++){
 //    std::cout<<"1D index: "<<i<<std::endl;

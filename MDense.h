@@ -17,7 +17,7 @@ class MDense:public MLayer
   private:
     MTensor* _mat;
     MShape _shape;
-    std::vector<float> _bias;
+    std::vector<double> _bias;
     bool _set_sparse;
     unsigned int _volume;
   public:
@@ -27,10 +27,10 @@ class MDense:public MLayer
     MTensor* GetOutPut(MTensor*,bool set_sparse=false);
 
     void Print();
-    void SetWeights(const float* weights);
-    void SetWeights(const std::vector<float>& weights);
-    void SetBias(const float* bias);
-    void SetBias(const std::vector<float>& bias);
+    void SetWeights(const double* weights);
+    void SetWeights(const std::vector<double>& weights);
+    void SetBias(const double* bias);
+    void SetBias(const std::vector<double>& bias);
 
 };
 

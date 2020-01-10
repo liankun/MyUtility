@@ -120,8 +120,8 @@ MTensor* MPooling::GetOutPut(MTensor* tensor,bool set_sparse){
 //    PrintIndex(ref_index);
     
     //the result of the matrix multiplication
-    float mean_val = 0;
-    float max_val = 0;
+    double mean_val = 0;
+    double max_val = 0;
     for(unsigned int j=0;j<_dummy_ft->GetVolume();j++){
       MIndex index0 = _dummy_ft->GetIndexFrom1D(j);
 //      std::cout<<"Get index out of 1D for filter !"<<std::endl;
@@ -129,7 +129,7 @@ MTensor* MPooling::GetOutPut(MTensor* tensor,bool set_sparse){
       MIndex index1 = AddIndex(index0,ref_index);
 //      std::cout<<"Get the index for input tensor !"<<std::endl;
         
-      float val = 0;
+      double val = 0;
       if(_same_pad){
 	if(GetPaddingIndex(index1,tensor->GetShape())){
           val = tensor->GetValue(index1);
@@ -148,7 +148,7 @@ MTensor* MPooling::GetOutPut(MTensor* tensor,bool set_sparse){
 	if(max_val<val) max_val = val;
       }
     }
-    float val = max_val;
+    double val = max_val;
     if(_method==AVG) val = mean_val/_dummy_ft->GetVolume();
     (*out_tensor)[out_indx] = val;
   }

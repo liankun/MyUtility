@@ -16,7 +16,7 @@ class MTensor{
   //all tensor will be considered as
   //one D array,access by indexing
   private:
-    float* _tensor;
+    double* _tensor;
     MSparseMap _sparse_map; 
     MShape _shape;
 //    unsigned long int
@@ -50,14 +50,14 @@ class MTensor{
     
     virtual ~MTensor();
     //access the element by index
-    float GetValue(const MIndex index);
+    double GetValue(const MIndex index);
     //access the element by 1D array index;
-    float GetValue(const unsigned int i);
+    double GetValue(const unsigned int i);
     //by using [] the value can be changed
     //for the sparse array
-    float &operator[](const MIndex index);
+    double &operator[](const MIndex index);
     //access element by index of 1D array
-    float &operator[](const unsigned int i);
+    double &operator[](const unsigned int i);
     bool IsSparse() const {return _is_sparse;}
 
     void Print1DTensor();
@@ -77,22 +77,22 @@ class MTensor{
     
     //set all tensor value to a single value
     //for test
-    void SetValue(float val);
+    void SetValue(double val);
     //for test
     void SetValue();
 
-    void SetValue(const unsigned int i,float val);
-    void SetValue(const MIndex index,float val);
+    void SetValue(const unsigned int i,double val);
+    void SetValue(const MIndex index,double val);
     
     //all the tensor will be set by one 1D arrays
     //the lenght of the array should be equal to the 
     //Volume of the tensor, or it will cause errors
     //make sure the volume matches
-    void Set1DValues(const float* values);
-    void Set1DValues(const std::vector<float>& values);
+    void Set1DValues(const double* values);
+    void Set1DValues(const std::vector<double>& values);
     
-    void Set1DValues(std::vector<float>::const_iterator begin,
-                     std::vector<float>::const_iterator end);
+    void Set1DValues(std::vector<double>::const_iterator begin,
+                     std::vector<double>::const_iterator end);
     void Clear();
 
 };
