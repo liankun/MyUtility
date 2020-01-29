@@ -16,7 +16,7 @@ class MConv: public MLayer{
     //this is an array of filters
     std::vector<MTensor*> _filters;
     std::vector<double> _bias;
-
+    
     //the padding shift value: added columns
     //and rows for each dimension 
     std::vector<unsigned int> _padding_shift0;
@@ -51,6 +51,9 @@ class MConv: public MLayer{
     virtual ~MConv();
     MTensor* GetOutPut(MTensor*,bool set_sparse=false);
     MTensor* GetFilter(unsigned int i);
+    
+    //sparse version product
+    MTensor* GetOutPutTest(MTensor*,bool set_sparse=true);
 
     void Print();
     //set the values for filter
@@ -63,6 +66,12 @@ class MConv: public MLayer{
     void SetFilter(const std::vector<double>& values);
     void SetWeights(const std::vector<double>& values);
     void SetBias(const std::vector<double>& values);
+
+    //for sparse matrix multiplication
+    //for the input index, get the first convolve index
+    //it also return a MShape used to loop all possible
+    //index
+    MIndex GetInitIndex(const MIndex&,const MShape&,MShape&);
 
 };
 

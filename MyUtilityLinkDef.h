@@ -43,5 +43,6 @@
 #pragma link C++ class MPreprocess;
 #pragma link C++ class MModelBase;
 #pragma link C++ class MModelV1;
+#pragma link C++ class ToHDF5;
 
 #endif /* __CINT__ */

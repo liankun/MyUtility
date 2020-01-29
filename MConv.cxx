@@ -197,6 +197,162 @@ MTensor* MConv::GetOutPut(MTensor* tensor,bool set_sparse){
   return out_tensor;
 }
 
+MTensor* MConv::GetOutPutTest(MTensor* tensor,bool set_sparse){
+  MTensor* out_tensor = GetOutTensor(tensor->GetShape(),set_sparse);
+  if(!out_tensor) return 0;
+  
+  if(_same_pad) SetPaddingShift(out_tensor->GetShape());
+  
+  //****
+  std::cout<<"start iterating: "<<std::endl;
+
+  for(CIter it = tensor->GetBegin();it!=tensor->GetEnd();it++){
+    unsigned int one_d_idx = it->first;
+    
+    //****
+    std::cout<<"one D index: "<<one_d_idx<<std::endl;
+    
+    MIndex idx = tensor->GetIndexFrom1D(one_d_idx);
+    MShape dummy_shape;
+    //the dimension is one smaller
+    MIndex fst_idx = GetInitIndex(idx,out_tensor->GetShape(),dummy_shape);
+    if(fst_idx.size()==0) continue;
+    //an dummy tensor used only for indexing
+    MTensor* d_tensor = new MTensor(dummy_shape,true);
+    for(unsigned int j=0;j<d_tensor->GetVolume();j++){
+      MIndex shift_index = d_tensor->GetIndexFrom1D(j);
+      MIndex out_index = AddIndex(fst_idx,shift_index);
+      
+      //*****
+      std::cout<<"conv index: "<<std::endl;
+      PrintIndex(out_index);
+
+      //make the dimension same as the out_tensor
+      out_index.push_back(0);
+
+      std::vector<double> valid_tensor_values_list;
+      std::vector<unsigned int> valid_ft_index_list;
+
+      for(unsigned int i_ft=0;i_ft<_nft;i_ft++){
+        //*****
+	std::cout<<"i-th filer: "<<i_ft<<std::endl;
+	
+	MTensor* t_filter = _filters[i_ft];
+        double val = _bias[i_ft];
+        MIndex ref_index = MultiplyIndex(out_index,_stride);
+	out_index.back()=i_ft;
+
+	if(out_tensor->IsIndexExist(out_index)) continue;
+
+	if(i_ft==0){
+	  for(unsigned int k=0;k<_ft_volume;k++){
+            MIndex index0 = t_filter->GetIndexFrom1D(k);
+            MIndex index1 = AddIndex(index0,ref_index);
+        
+            //*****
+	    std::cout<<"Get value of filter "<<std::endl;
+
+	    double val0 = t_filter->GetValue(k);
+            double val1 = 0;
+	    bool is_index_valid=true;
+            if(_same_pad){
+	      is_index_valid = GetPaddingIndex(index1,tensor->GetShape());
+            }
+
+	    if(is_index_valid){
+	      if(tensor->IsIndexExist(index1)){
+	        //*****
+		std::cout<<"get input tensor value: "<<std::endl;
+                PrintIndex(index1);
+
+                val1=tensor->GetValue(index1);
+	        val+=val0*val1;
+	        valid_ft_index_list.push_back(k);
+		valid_tensor_values_list.push_back(val1);
+	      }
+	    }
+	  }
+	}
+	else{
+	  //*****
+	  std::cout<<"Number of the valid vector size "<<valid_ft_index_list.size()<<std::endl;
+
+	  for(unsigned int k=0;k<valid_tensor_values_list.size();k++){
+	    //*****
+	    std::cout<<"set idx value for filter "<<k<<std::endl;
+
+	    unsigned int one_d_index0 = valid_ft_index_list[k];
+	    double val1 = valid_tensor_values_list[k];
+	    double val0 = t_filter->GetValue(one_d_index0);
+	    val+=val0*val1;
+	  }
+	}
+	//*****
+	std::cout<<"set output value"<<std::endl;
+	PrintIndex(out_index);
+	
+	(*out_tensor)[out_index] = val;
+
+        //*****
+	std::cout<<"Set OutPutTensor finished !"<<std::endl;
+      }
+    }
+    delete d_tensor;
+  } 
+  
+  return out_tensor;
+}
+
+
+MIndex MConv::GetInitIndex(const MIndex& idx,const MShape& shape,MShape& dummy_shape){
+  //if the index is invalid, will return a MIndex a size of 0
+  //if the stride is larger than the size of the filter
+  //it is possible some element will not be convolved
+  //the shape stands for output tensor shape, 
+  MIndex out_idx;
+  if(idx.size()!=_shape.size()){
+    std::cout<<"MConv::GetInitIndex input size not match !"<<std::endl;
+    return out_idx;
+  }
+
+  if(idx.size()<=1){
+    std::cout<<"MConv::GetInitIndex input index is less than 1 !"<<std::endl;
+    return out_idx;
+  }
+
+  //get the position of the element in the filter
+  dummy_shape.clear();
+  
+  //for one D array the relation between stride index are:
+  //
+  for(unsigned int i=0;i<idx.size()-1;i++){
+    float f_stride = _stride;
+    float f_size = _shape[i]-1;
+    float f_x = idx[i];
+    if(_same_pad) f_x+=_padding_shift0[i];
+    float off_set = f_size/f_stride;
+    int up_limit = floor(f_x/f_stride);
+    if(up_limit>=int(shape[i])) up_limit=int(shape[i])-1;
+    int range=-1;
+    for(int j=up_limit;j>=0;j--){
+      if(f_x/f_stride>j+off_set) break;
+      range++;
+    }
+
+    if(range<0){
+      //invalid index, this value will not be
+      //convoloved since the big stride
+      out_idx.clear();
+      return out_idx;
+    }
+
+    dummy_shape.push_back(range);
+    out_idx.push_back(up_limit-range);
+  }
+  return out_idx;
+}
+
+
 void MConv::SetPaddingShift(const MShape &shape){
   //add the pading information
   //here is the padding process
@@ -219,6 +375,7 @@ void MConv::SetPaddingShift(const MShape &shape){
   std::vector<unsigned int> shift_end(shape.size(),0);
   _padding_shift0 = shift_start;
   _padding_shift1 = shift_end;
+
   //setting the value of the start and end
   for(unsigned int i=0;i<shape.size()-1;i++){
     //if we use the unsigned int for math,

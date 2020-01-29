@@ -83,6 +83,7 @@ MModelV1::MModelV1(){
   MPooling* pool2 = new MPooling(shape2,2,false,MPooling::MAX);
   _mlayers.push_back(pool2);
 
+
   //layer 3: conv (2,2,16,32)
   MShape shape3(3,2);
   shape3[2]=16;
@@ -99,7 +100,8 @@ MModelV1::MModelV1(){
   MShape shape5(2,2);
   MPooling* pool5 = new MPooling(shape5,2,false,MPooling::MAX);
   _mlayers.push_back(pool5);
-
+  
+  
   //layer 6: conv (2,2,32,64)
   MShape shape6(3,2);
   shape6[2]=32;
@@ -117,7 +119,9 @@ MModelV1::MModelV1(){
   MPooling* pool8 = new MPooling(shape8,2,false,MPooling::MAX);
   _mlayers.push_back(pool8);
 
-   //layer 9: (2,2,64,128)
+  
+  
+  //layer 9: (2,2,64,128)
   MShape shape9(3,2);
   shape9[2]=64;
   MConv* mconv9 = new MConv(shape9,128,1,true);
@@ -134,6 +138,7 @@ MModelV1::MModelV1(){
   MPooling* pool11 = new MPooling(shape11,2,false,MPooling::MAX);
   _mlayers.push_back(pool11);
 
+  
    //layer 12: conv (2,2,128,256)
   MShape shape12(3,2);
   shape12[2]=128;

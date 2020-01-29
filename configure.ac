@@ -13,4 +13,3 @@ if test $ac_cv_prog_gxx = yes; then
 fi
 
 AC_OUTPUT(Makefile)
-

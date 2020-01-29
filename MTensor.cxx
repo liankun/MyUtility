@@ -23,22 +23,24 @@ MTensor::MTensor(const MShape& shape,bool set_sparse){
 //  std::cout<<"Number of the volume: "<<nsize<<std::endl;
 
   _volume = nsize;
-
+  
+  _default=0;
   if(_is_sparse){
     _sparse_map.clear();
     _tensor = NULL;
-    _nsize=0;
   }
   else{
     _tensor = new double[nsize]();
     _sparse_map.clear();
-    _nsize=nsize;
   }
 }
 
 bool MTensor::IsIndexValid(const MIndex& index){
   //check if the index is valid
-  if(index.size()!=_shape.size()) return false;
+  if(index.size()!=_shape.size()){
+    std::cout<<"dimension not the same !"<<std::endl;
+    return false;
+  }
   for(unsigned int i=0;i<index.size();i++){
   if(index[i]>=_shape[i]){
     std::cout<<"dim "<<i<<" input index: "<<index[i]<<" tensor shape: "<<_shape[i]<<std::endl;
@@ -81,7 +83,7 @@ double MTensor::GetValue(const MIndex index) {
     //calculate the index
     //value not exist
     if(_sparse_map.find(one_d_i)==_sparse_map.end()){
-      return 0;
+      return _default;
     }
     return _sparse_map[one_d_i];
   }
@@ -98,7 +100,7 @@ double MTensor::GetValue(const unsigned int i){
 
   if(_is_sparse){
     if(_sparse_map.find(i)==_sparse_map.end()){
-      return 0;
+      return _default;
     }
     return _sparse_map[i];
   }
@@ -117,8 +119,7 @@ double &MTensor::operator[](const MIndex index){
     //calculate the index
     //value not exist
     if(_sparse_map.find(one_d_i)==_sparse_map.end()){
-      _sparse_map[one_d_i]=0;
-      _nsize++;
+      _sparse_map[one_d_i]=_default;
     }
     return _sparse_map[one_d_i];
   }
@@ -139,8 +140,7 @@ double &MTensor::operator[](const unsigned int i){
     //calculate the index
     //value not exist
     if(_sparse_map.find(i)==_sparse_map.end()){
-      _sparse_map[i]=0;
-      _nsize++;
+      _sparse_map[i]=_default;
     }
     return _sparse_map[i];
   }
@@ -167,7 +167,7 @@ void MTensor::Print1DTensor(){
     }
   }
   else{
-    for(unsigned int i=0;i<_nsize;i++){
+    for(unsigned int i=0;i<_volume;i++){
       std::cout<<"1D index: "<<i<<" "
                <<"Value: "<<_tensor[i]<<std::endl;
     }
@@ -199,10 +199,7 @@ MIndex MTensor::GetIndexFrom1D(unsigned int idx){
 void MTensor::SetValue(double val){
   //set same value for each element
   for(unsigned int i=0;i<_volume;i++){
-    if(_is_sparse){
-      _sparse_map[i]=val;
-    }
-    else _tensor[i]=val;	  
+    (*this)[i] = val;
   }
 }
 
@@ -224,7 +221,12 @@ void MTensor::Set1DValues(const double* values){
 
   for(unsigned int i=0;i<_volume;i++){
     //we have sparse matrix setting
-    (*this)[i]=values[i];    
+    if(_is_sparse){
+      if(values[i]!=_default) (*this)[i]=values[i];
+    }
+    else{
+      (*this)[i] = values[i];
+    }
   }
 }
 
@@ -235,7 +237,12 @@ void MTensor::Set1DValues(const std::vector<double>& values){
   }
   for(unsigned int i=0;i<values.size();i++){
     //we have sparse matrix setting
-    (*this)[i] = values[i];    
+    if(_is_sparse){
+      if(values[i]!=_default) (*this)[i]=values[i];
+    }
+    else{
+      (*this)[i] = values[i];
+    }
   }
 }
 
@@ -244,7 +251,13 @@ void MTensor::Set1DValues(std::vector<double>::const_iterator begin,
   unsigned int i=0;
   for(;begin!=end;begin++){
 //    std::cout<<"1D index: "<<i<<std::endl;
-    (*this)[i] = *begin;
+    double val = *begin;
+    if(_is_sparse){
+      if(val!=_default) (*this)[i]=val;
+    }
+    else{
+      (*this)[i] = *begin;
+    }
 //    std::cout<<(*this)[i]<<std::endl;
     i++;
   }
@@ -257,8 +270,37 @@ void MTensor::Clear(){
   }
   else{
     for(unsigned int i=0;i<_volume;i++){
-      _tensor[i]=0;
+      _tensor[i]=0.;
     }   
   }
+  _default=0;
 }
 
+CIter MTensor::GetBegin(){
+  return _sparse_map.begin();
+}
+
+CIter MTensor::GetEnd(){
+  return _sparse_map.end();
+}
+
+bool MTensor::IsIndexExist(const unsigned int i){
+  if(i>=_volume) return false;
+  if(_sparse_map.find(i)!=_sparse_map.end()){
+    return true;
+  }
+  return false;
+}
+
+bool MTensor::IsIndexExist(const MIndex& idx){
+  unsigned int one_d_idx = Get1DIndex(idx);
+  return IsIndexExist(one_d_idx);
+}
+
+double MTensor::Sum(){
+  double sum=0;
+  for(unsigned int i=0;i<_volume;i++){
+    sum+=GetValue(i);
+  }
+  return sum;
+}

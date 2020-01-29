@@ -1,7 +1,9 @@
 AUTOMAKE_OPTIONS = foreign
 
+HDF5_dir = /gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/HDF5/hdf5-1.10.6/hdf5
+
 AM_CXXFLAGS = -Wall -Werror
-INCLUDES = -I$(includedir) -I$(OFFLINE_MAIN)/include -I`root-config --incdir`
+INCLUDES = -I$(includedir) -I$(OFFLINE_MAIN)/include -I`root-config --incdir` -I$(HDF5_dir)/include
 
 SUBDIRS = 
 
@@ -58,7 +60,9 @@ include_HEADERS = \
   MDense.h \
   MPreprocess.h \
   MModelBase.h \
-  MModelV1.h
+  MModelV1.h \
+  MIndexing.h \
+  ToHDF5.h
  
 libMyUtility_la_SOURCES = \
   ExEvent.cxx \
@@ -93,19 +97,24 @@ libMyUtility_la_SOURCES = \
   MDense.cxx \
   MPreprocess.cxx \
   MModelBase.cxx \
-  MModelV1.cxx
+  MModelV1.cxx \
+  ToHDF5.cxx
 
 libMyUtility_la_LIBADD = \
   -L$(libdir) \
   -L$(OFFLINE_MAIN)/lib \
   -L$(ROOTSYS)/lib \
+  -L$(HDF5_dir)/lib \
   -lSpectrum \
   -luspin \
   -lmpcex_base \
   -lmpcex_interface \
   -lmpcex_modules \
   -lmpcex_utils \
-  -lMpcExReco
+  -lMpcExReco \
+  -lhdf5_cpp \
+  -lhdf5 \
+  -lhdf5_hl_cpp
 
 nodist_libMyUtility_la_SOURCES = \
   MyUtility_Dict.C
@@ -145,6 +154,7 @@ MyUtility_Dict.C: \
   MPreprocess.h \
   MModelBase.h \
   MModelV1.h \
+  ToHDF5.h \
   MyUtilityLinkDef.h 
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) $^
 

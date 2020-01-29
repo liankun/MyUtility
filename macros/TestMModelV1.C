@@ -30,6 +30,7 @@ void TestMModelV1(){
     mt->Set1DValues(all_examples[i]); 
     vector<double> prob = model_v1->GetProb(mt);
     for(unsigned int j=0;j<prob.size();j++){
+      cout<<prob[j]<<" "<<endl;
       out_txt<<prob[j]<<" ";
     }
     out_txt<<endl;

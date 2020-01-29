@@ -19,10 +19,9 @@ class MTensor{
     double* _tensor;
     MSparseMap _sparse_map; 
     MShape _shape;
-//    unsigned long int
-    //the effective size of the tensor
-    //for the sparse map
-    unsigned int _nsize;
+    //the default value for the sparse array
+    double _default;
+
     //the total volume of the tensor
     unsigned int _volume;
     //the list used to tranfrom the 1D
@@ -36,7 +35,6 @@ class MTensor{
     //if the index is (m,n,s,t), the 1D index will
     //be m+m*n+m*n*s+m*n*s*t
     //the index is on x axis first
-    int Get1DIndex(const MIndex& index);
 
   public:
     //each tensor has its shape (m,n,t,s)
@@ -44,8 +42,8 @@ class MTensor{
     //for testing 
     MTensor(){
       _tensor = 0;
-      _nsize = 0;
       _is_sparse = false;
+      _default=0;
     }
     
     virtual ~MTensor();
@@ -94,6 +92,21 @@ class MTensor{
     void Set1DValues(std::vector<double>::const_iterator begin,
                      std::vector<double>::const_iterator end);
     void Clear();
+
+    CIter GetBegin();
+    CIter GetEnd();
+
+    //only for sparse matrix
+    bool IsIndexExist(const unsigned int);
+    bool IsIndexExist(const MIndex& idx);
+    int Get1DIndex(const MIndex& index);
+
+    unsigned int GetSparseSize(){return _sparse_map.size();}
+
+    void SetDefaultValue(double val){_default = val;}
+    
+    //sum all element in the tensor
+    double Sum();
 
 };
 
