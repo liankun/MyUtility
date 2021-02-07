@@ -133,7 +133,6 @@ public:
   int GetNhits() const {return _ex_hits.size();}
   ExHit* GetExHit(unsigned int l) {if(l < _ex_hits.size())return _ex_hits[l]; else return 0;}
   
-
   // no ";"
   ClassDef(ExShower,1)
 };

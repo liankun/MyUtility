@@ -37,6 +37,11 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 
+// Second stage shower expansion limits
+#define EXPANSION_START 1.3
+#define FRACTIONAL_ENERGY_LIMIT 0.02
+#define EXP_FACTOR_LIMIT 4.0
+
 
 using namespace std;
 using namespace findNode;

@@ -35,10 +35,6 @@ class MpcExCalibrateShowerEnergy;
 #define SHOWER_FRONT_RADIUS 0.80
 #define SHOWER_RADIUS SHOWER_BACK_RADIUS
 
-// Second stage shower expansion limits
-#define EXPANSION_START 1.3
-#define FRACTIONAL_ENERGY_LIMIT 0.02
-#define EXP_FACTOR_LIMIT 4.0
 
 class mMpcExShowerV2: public SubsysReco
 {

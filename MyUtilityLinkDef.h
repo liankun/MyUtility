@@ -30,7 +30,7 @@
 #pragma link C++ class ExHitList;
 #pragma link C++ class mMpcExShowerV2;
 #pragma link C++ class MiniCluster;
-#pragma lkin C++ class MiniClusterV1;
+#pragma link C++ class MiniClusterV1;
 #pragma link C++ class ExMiniClusters;
 #pragma link C++ class JohnCalibrateShowerEnergy;
 #pragma link C++ class MTensor;
@@ -44,5 +44,8 @@
 #pragma link C++ class MModelBase;
 #pragma link C++ class MModelV1;
 #pragma link C++ class ToHDF5;
+#pragma link C++ class H5ToRoot;
+#pragma link C++ class mMpcExShowerV3;
+#pragma link C++ class ExEventV2;
 
 #endif /* __CINT__ */

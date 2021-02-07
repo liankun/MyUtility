@@ -1,6 +1,8 @@
 AUTOMAKE_OPTIONS = foreign
 
-HDF5_dir = /gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/HDF5/hdf5-1.10.6/hdf5
+#HDF5_dir = /gpfs/mnt/gpfs02/phenix/mpcex/liankun/Run16/Ana/offline/analysis/mpcexcode/HDF5/hdf5-1.10.6/hdf5
+
+HDF5_dir = /opt/phenix/core/hdf5
 
 AM_CXXFLAGS = -Wall -Werror
 INCLUDES = -I$(includedir) -I$(OFFLINE_MAIN)/include -I`root-config --incdir` -I$(HDF5_dir)/include
@@ -62,7 +64,11 @@ include_HEADERS = \
   MModelBase.h \
   MModelV1.h \
   MIndexing.h \
-  ToHDF5.h
+  ToHDF5.h \
+  H5ToRoot.h \
+  GeantParticleID.h \
+  mMpcExShowerV3.h \
+  ExEventV2.h 
  
 libMyUtility_la_SOURCES = \
   ExEvent.cxx \
@@ -98,7 +104,10 @@ libMyUtility_la_SOURCES = \
   MPreprocess.cxx \
   MModelBase.cxx \
   MModelV1.cxx \
-  ToHDF5.cxx
+  ToHDF5.cxx \
+  H5ToRoot.cxx \
+  mMpcExShowerV3.C \
+  ExEventV2.cxx
 
 libMyUtility_la_LIBADD = \
   -L$(libdir) \
@@ -155,6 +164,9 @@ MyUtility_Dict.C: \
   MModelBase.h \
   MModelV1.h \
   ToHDF5.h \
+  H5ToRoot.h \
+  mMpcExShowerV3.h \
+  ExEventV2.h \
   MyUtilityLinkDef.h 
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) $^
 
